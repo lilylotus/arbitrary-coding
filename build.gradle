@@ -1,177 +1,199 @@
 import org.apache.commons.codec.binary.Base64
 
 buildscript {
-    repositories {
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'commons-codec', name: 'commons-codec', version: '1.2'
-    }
+	repositories {
+		maven { url 'https://maven.aliyun.com/repository/public' }
+		mavenCentral()
+	}
+	dependencies {
+		classpath group: 'commons-codec', name: 'commons-codec', version: '1.2'
+	}
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.3.6.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-    id 'java'
-    id 'idea'
+	id 'org.springframework.boot' version '2.3.6.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'java'
+	id 'idea'
 }
 
-group 'cn.nihility.exec'
-version '1.0-SNAPSHOT'
+group = 'cn.nihility'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+ext {
+	mainClassName = (project.hasProperty("mainclass") ? project.property("mainclass") : 'cn.nihility.exec.HelloWorld')
+	projectVersion = (project.hasProperty("pversion") ? project.property("pversion") : "${version}")
+	springVersion = '5.1.17.RELEASE'
+	junitVersion = '4.12'
+	log4j2Version = '2.13.2'
+	tomcatEmbedVersion = '9.0.39'
+}
+
+version(project.hasProperty("pversion") ? project.property("pversion") : "${version}")
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+
+	all*.exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
+}
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://maven.aliyun.com/repository/spring' }
+    maven { url 'https://maven.aliyun.com/repository/spring-plugin' }
+    mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-loader'
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+	implementation 'org.apache.commons:commons-lang3:3.10'
+	implementation 'commons-codec:commons-codec:1.14'
+	implementation 'commons-io:commons-io:2.7'
+
+	/* spring boot redis 操作 */
+	implementation "org.springframework.boot:spring-boot-starter-data-redis"
+	/* spring-boot-starter-data-redis 依赖 commons-pool2 连接池 */
+	implementation 'org.apache.commons:commons-pool2:2.8.1'
+	/* redis 分布式锁 */
+	implementation 'org.redisson:redisson:3.13.4'
+
+	implementation "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatEmbedVersion}"
+	implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatEmbedVersion}"
+	implementation "org.apache.tomcat.embed:tomcat-embed-el:${tomcatEmbedVersion}"
+	implementation "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatEmbedVersion}"
+
+	implementation 'cglib:cglib:3.2.12'
+
+	/* 包含了 log4j-api:2.13.2 */
+	implementation "org.apache.logging.log4j:log4j-core:2.13.2"
+	/* web 项目需要 */
+	implementation "org.apache.logging.log4j:log4j-web:2.13.2"
+	/* 包含了 slf4j-api:1.7.25 */
+	implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.13.2"
+	/* log4j2 异步日志所需 */
+	implementation "com.lmax:disruptor:3.4.2"
+
+	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+
+	implementation fileTree(dir: 'lib', includes: ["*.jar"])
+
+	// other tools
+	implementation 'cn.hutool:hutool-all:5.4.4'
+	/* jwt token */
+	implementation 'com.auth0:java-jwt:3.10.3'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+	useJUnitPlatform()
+}
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'utf-8'
 [compileJava, compileTestJava]*.sourceCompatibility = "1.8"
 [compileJava, compileTestJava]*.targetCompatibility = "1.8"
 tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
 
-ext {
-    mainClassName = (project.hasProperty("mainclass") ? project.property("mainclass") : 'cn.nihility.exec.HelloWorld')
-    projectVersion = (project.hasProperty("pversion") ? project.property("pversion") : "${version}")
-    springVersion = '5.1.17.RELEASE'
-    junitVersion = '4.12'
-    log4j2Version = '2.13.2'
-    tomcatEmbedVersion = '9.0.39'
-}
-
-version(project.hasProperty("pversion") ? project.property("pversion") : "${version}")
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-
-    all*.exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
-}
-
-repositories {
-    /*maven { url "http://nexus3.koal.com:8081/repository/maven-public/" }*/
-    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-    implementation 'org.springframework.boot:spring-boot-loader'
-    implementation "org.springframework.boot:spring-boot-starter-log4j2"
-    implementation 'org.apache.commons:commons-lang3:3.10'
-    implementation 'commons-codec:commons-codec:1.14'
-    implementation 'commons-io:commons-io:2.7'
-
-    /* spring boot redis 操作 */
-    implementation "org.springframework.boot:spring-boot-starter-data-redis"
-    /* spring-boot-starter-data-redis 依赖 commons-pool2 连接池 */
-    implementation 'org.apache.commons:commons-pool2:2.8.1'
-    /* redis 分布式锁 */
-    implementation 'org.redisson:redisson:3.13.4'
-
-    implementation "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatEmbedVersion}"
-    implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatEmbedVersion}"
-    implementation "org.apache.tomcat.embed:tomcat-embed-el:${tomcatEmbedVersion}"
-    implementation "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatEmbedVersion}"
-
-    //implementation 'ch.qos.logback:logback-classic:1.2.3'
-
-    implementation 'cglib:cglib:3.2.12'
-
-    /* 包含了 log4j-api:2.13.2 */
-    implementation "org.apache.logging.log4j:log4j-core:2.13.2"
-    /* web 项目需要 */
-    implementation "org.apache.logging.log4j:log4j-web:2.13.2"
-    /* 包含了 slf4j-api:1.7.25 */
-    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.13.2"
-    /* log4j2 异步日志所需 */
-    implementation "com.lmax:disruptor:3.4.2"
-
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-
-    implementation fileTree(dir: 'lib', includes: ["*.jar"])
-
-    // other tools
-    implementation 'cn.hutool:hutool-all:5.4.4'
-    /* jwt token */
-    implementation 'com.auth0:java-jwt:3.10.3'
-    implementation 'org.projectlombok:lombok:1.18.14'
-
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-}
 
 task clearJar(type: Delete) {
-    delete "$buildDir\\libs"
+	delete "$buildDir\\libs"
 }
 
 task copyJar(type: Copy) {
-    from configurations.runtimeClasspath
-    into "$buildDir\\libs\\lib"
+	from configurations.runtimeClasspath
+	into "$buildDir\\libs\\lib"
 }
 
 def dateStr = new Date().format('yyyyMMdd')
 
 jar {
-    /* configurations.runtime 使用 compile 引入的依赖
+	/* configurations.runtime 使用 compile 引入的依赖
     *  implementation 引入的依赖，要使用 configurations.runtimeClasspath
     *  configurations.runtimeClasspath 可以打包 compile/implementation 的依赖
     *  testImplementation 引入的依赖，则使用 configurations.testRuntimeClasspath
     * */
-    /*from {
+	/*from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }*/
-    dependsOn clearJar
-    dependsOn copyJar
-    archiveName("$project.name-$dateStr-${version}" + ".jar")
-    if (!configurations.runtimeClasspath.isEmpty()) {
-        //manifest.attributes('Class-Path': '. lib/' + configurations.runtimeClasspath.collect { println it.name ; it.name }.join(' lib/'))
-        manifest.attributes('Class-Path': '. ' + configurations.runtimeClasspath.files.collect { /*println it.name;*/ "lib/$it.name" }.join(' '))
-    }
-    manifest {
-        attributes "Manifest-Version": 1.0
-        attributes 'Built-By': System.getProperty("user.name")
-        attributes 'Main-Class':"$mainClassName"
-    }
-    exclude('LICENSE.txt', 'NOTICE.txt', 'rootdoc.txt')
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
-    exclude 'META-INF/NOTICE', 'META-INF/NOTICE.txt'
-    exclude 'META-INF/LICENSE', 'META-INF/LICENSE.txt'
-    exclude 'META-INF/DEPENDENCIES'
+	dependsOn clearJar
+	dependsOn copyJar
+	archiveName("$project.name-$dateStr-${version}" + ".jar")
+	if (!configurations.runtimeClasspath.isEmpty()) {
+		//manifest.attributes('Class-Path': '. lib/' + configurations.runtimeClasspath.collect { println it.name ; it.name }.join(' lib/'))
+		manifest.attributes('Class-Path': '. ' + configurations.runtimeClasspath.files.collect { /*println it.name;*/ "lib/$it.name" }.join(' '))
+	}
+	manifest {
+		attributes "Manifest-Version": 1.0
+		attributes 'Built-By': System.getProperty("user.name")
+		attributes 'Main-Class':"$mainClassName"
+	}
+	exclude('LICENSE.txt', 'NOTICE.txt', 'rootdoc.txt')
+	exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+	exclude 'META-INF/NOTICE', 'META-INF/NOTICE.txt'
+	exclude 'META-INF/LICENSE', 'META-INF/LICENSE.txt'
+	exclude 'META-INF/DEPENDENCIES'
+}
+
+def branchName = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+def branchCommitId = "git rev-parse HEAD".execute().text.trim()
+
+bootJar {
+	excludes = ["*.jar"]
+	dependsOn clearJar
+	dependsOn copyJar
+
+	manifest {
+		attributes "branchName": "$branchName"
+		attributes "commitId": "$branchCommitId"
+		attributes("Main-Class": "org.springframework.boot.loader.PropertiesLauncher")
+		//attributes("branchName": "$branchName", "commitId": "$branchCommitId")
+	}
+
+	//manifest.attributes('Class-Path': '. lib/' + configurations.runtimeClasspath.collect { println it.name ; it.name }.join(' lib/'))
+	manifest.attributes('Class-Path': '. ' + configurations.runtimeClasspath.files.collect { println it.name;
+		"lib/$it.name" }.join(' '))
 }
 
 task zip(type: Zip, dependsOn: [jar]) {
-    archiveFileName = "${project.name}-${dateStr}-${projectVersion}.zip"
-    destinationDirectory = file("$buildDir/dist")
+	archiveFileName = "${project.name}-${dateStr}-${projectVersion}.zip"
+	destinationDirectory = file("$buildDir/dist")
 
-    from("$buildDir/libs") {
-        /*into("lib")*/
-    }
+	from("$buildDir/libs") {
+		/*into("lib")*/
+	}
 
-    /*from("$buildDir/libs") {
+	/*from("$buildDir/libs") {
         into("")
     }*/
 }
 
 sourceSets {
-    main { java { srcDirs = ['src/main/java', 'src/main/resources'] } }
-    test { java { srcDirs = ['src/test/java', 'src/test/resources'] } }
+	main { java { srcDirs = ['src/main/java', 'src/main/resources'] } }
+	test { java { srcDirs = ['src/test/java', 'src/test/resources'] } }
 }
 
 task mkdirs() {
-    sourceSets*.java.srcDirs*.each { it.mkdirs() }
-    sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+	sourceSets*.java.srcDirs*.each { it.mkdirs() }
+	sourceSets*.resources.srcDirs*.each { it.mkdirs() }
 }
 
 task pr() {
-    println "${version} : ${projectVersion}"
+	println "${version} : ${projectVersion}"
 }
 
 
 task encode {
-    doLast {
-        def byte[] encodedString = new Base64().encode('hello world\n'.getBytes())
-        println new String(encodedString)
-    }
+	doLast {
+		def byte[] encodedString = new Base64().encode('hello world\n'.getBytes())
+		println new String(encodedString)
+	}
 }

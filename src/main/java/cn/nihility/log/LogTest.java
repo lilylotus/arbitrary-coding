@@ -14,12 +14,12 @@ public class LogTest {
         System.setProperty("appName", "exec");
         System.setProperty("profileName", "exec");
 
-/*        log.trace("Log Test message [{}]", msg);
+        log.trace("Log Test message [{}]", msg);
         log.debug("Log Test message [{}]", msg);
         log.info("Log Test message [{}]", msg);
         log.warn("Log Test message [{}]", msg);
-        log.error("Log Test message [{}]", msg);*/
-        while (true) {
+        log.error("Log Test message [{}]", msg);
+        /*while (true) {
             log.trace("Log Test message [{}]", msg);
             log.debug("Log Test message [{}]", msg);
             log.info("Log Test message [{}]", msg);
@@ -30,7 +30,7 @@ public class LogTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
 
