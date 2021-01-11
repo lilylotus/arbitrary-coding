@@ -3,7 +3,7 @@
 <!-- 日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
 <!-- Configuration 后面的 status，设置 log4j2 自身内部的信息输出，可以不设置，trace 时会看到 log4j2 内部各种详细输出 -->
 <!-- monitorInterval: Log4j 能够自动检测修改配置 文件和重新配置本身，设置间隔秒数 -->
-<configuration status="DEBUG" monitorInterval="60">
+<configuration status="ERROR" monitorInterval="60">
 
     <!--变量配置-->
     <Properties>
