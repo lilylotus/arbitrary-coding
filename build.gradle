@@ -27,8 +27,9 @@ ext {
 	springVersion = '5.1.17.RELEASE'
 	junitVersion = '4.12'
 	log4j2Version = '2.13.2'
-	tomcatEmbedVersion = '9.0.39'
 }
+
+ext['tomcatEmbedVersion'] = '9.0.39'
 
 version(project.hasProperty("pversion") ? project.property("pversion") : "${version}")
 
@@ -126,7 +127,10 @@ jar {
     }*/
 	dependsOn clearJar
 	dependsOn copyJar
-	archiveName("$project.name-$dateStr-${version}" + ".jar")
+
+	enabled = true
+
+	archiveName("$project.name-$dateStr-${archiveVersion}" + ".jar")
 	if (!configurations.runtimeClasspath.isEmpty()) {
 		//manifest.attributes('Class-Path': '. lib/' + configurations.runtimeClasspath.collect { println it.name ; it.name }.join(' lib/'))
 		manifest.attributes('Class-Path': '. ' + configurations.runtimeClasspath.files.collect { /*println it.name;*/ "lib/$it.name" }.join(' '))
@@ -151,6 +155,8 @@ bootJar {
 	dependsOn clearJar
 	dependsOn copyJar
 
+	classifier('arbitrary-coding')
+
 	manifest {
 		attributes "branchName": "$branchName"
 		attributes "commitId": "$branchCommitId"
@@ -159,8 +165,8 @@ bootJar {
 	}
 
 	//manifest.attributes('Class-Path': '. lib/' + configurations.runtimeClasspath.collect { println it.name ; it.name }.join(' lib/'))
-	manifest.attributes('Class-Path': '. ' + configurations.runtimeClasspath.files.collect { println it.name;
-		"lib/$it.name" }.join(' '))
+	manifest.attributes('Class-Path': '. ' + classpath.files.collect { println it.name; "lib/$it.name" }.join(' '))
+
 }
 
 task zip(type: Zip, dependsOn: [jar]) {
