@@ -1,7 +1,10 @@
 package cn.nihility.http.entity;
 
-public class HttpClientUser {
+import java.io.Serializable;
 
+public class HttpClientUser implements Serializable {
+
+    private static final long serialVersionUID = -1541036978775070601L;
     private String name;
     private Integer age;
 

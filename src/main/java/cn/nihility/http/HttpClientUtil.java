@@ -4,7 +4,10 @@ import cn.nihility.http.entity.HttpClientUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -15,6 +18,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -63,13 +67,95 @@ public class HttpClientUtil {
     }
 
     public static void main(String[] args) {
-        doPostWayThree();
+        doResponseHandler();
+    }
+
+
+    public static void clientConnectionRelease() {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            HttpGet httpget = new HttpGet("http://httpbin.org/get");
+
+            System.out.println("Executing request " + httpget.getRequestLine());
+            CloseableHttpResponse response = httpclient.execute(httpget);
+            try {
+                System.out.println("----------------------------------------");
+                System.out.println(response.getStatusLine());
+
+                // Get hold of the response entity
+                HttpEntity entity = response.getEntity();
+
+                // If the response does not enclose an entity, there is no need
+                // to bother about connection release
+                if (entity != null) {
+                    InputStream inStream = entity.getContent();
+                    try {
+                        inStream.read();
+                        // do something useful with the response
+                    } catch (IOException ex) {
+                        // In case of an IOException the connection will be released
+                        // back to the connection manager automatically
+                        throw ex;
+                    } finally {
+                        // Closing the input stream will trigger connection release
+                        inStream.close();
+                    }
+                }
+            } finally {
+                response.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void doResponseHandler() {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            HttpGet httpget = new HttpGet("http://httpbin.org/");
+
+            System.out.println("Executing request " + httpget.getRequestLine());
+
+            // Create a custom response handler
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+                @Override
+                public String handleResponse(
+                    final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        HttpEntity entity = response.getEntity();
+                        return entity != null ? EntityUtils.toString(entity) : null;
+                    } else {
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
+
+            };
+            String responseBody = httpclient.execute(httpget, responseHandler);
+            System.out.println("----------------------------------------");
+            System.out.println(responseBody);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
      * 普通参数 + 实体参数
-     * @PostMapping("/post_way_three")
-     * public String postWayThree(@RequestBody HttpClientUser user, String name, Integer age) {}
+     *
+     * @PostMapping("/post_way_three") public String postWayThree(@RequestBody HttpClientUser user, String name, Integer age) {}
      */
     public static void doPostWayThree() {
         // 创建客户端
@@ -134,8 +220,8 @@ public class HttpClientUtil {
 
     /**
      * 添加 body 参数
-     * @PostMapping("/post_way_two")
-     * public String postWayTwo(@RequestBody HttpClientUser user) {}
+     *
+     * @PostMapping("/post_way_two") public String postWayTwo(@RequestBody HttpClientUser user) {}
      */
     public static void doPostWayTwo() {
         // 创建客户端
@@ -181,8 +267,8 @@ public class HttpClientUtil {
 
     /**
      * 普通 URL 参数
-     * @PostMapping("/post_way_one")
-     * public String postWayOne(String name, Integer age) {}
+     *
+     * @PostMapping("/post_way_one") public String postWayOne(String name, Integer age) {}
      */
     public static void doPostNormalParam() {
         // 创建客户端
@@ -223,8 +309,7 @@ public class HttpClientUtil {
     }
 
     /**
-     * @PostMapping("/post_one")
-     * public String postOne() {}
+     * @PostMapping("/post_one") public String postOne() {}
      */
     public static void doPostOne() {
         // 创建客户端
@@ -251,8 +336,8 @@ public class HttpClientUtil {
 
     /**
      * 接收接口：
-     * @RequestMapping("/url")
-     * public String requestOne() { return "ONE"; }
+     *
+     * @RequestMapping("/url") public String requestOne() { return "ONE"; }
      */
     public static void doGetOne() {
         // 创建客户端
@@ -279,8 +364,7 @@ public class HttpClientUtil {
     }
 
     /**
-     * @RequestMapping("/wayone")
-     * public String requestOne(String name, Integer age) {}
+     * @RequestMapping("/wayone") public String requestOne(String name, Integer age) {}
      */
     public static void doGetWayOne() {
         // 获取客户端
@@ -353,17 +437,15 @@ public class HttpClientUtil {
 
     /**
      * 根据是否是https请求，获取HttpClient客户端
-     *
+     * <p>
      * TODO 本人这里没有进行完美封装。对于 校不校验校验证书的选择，本人这里是写死
-     *      在代码里面的，你们在使用时，可以灵活二次封装。
-     *
+     * 在代码里面的，你们在使用时，可以灵活二次封装。
+     * <p>
      * 提示: 此工具类的封装、相关客户端、服务端证书的生成，可参考我的这篇博客:
-     *      <linked>https://blog.csdn.net/justry_deng/article/details/91569132</linked>
-     *
+     * <linked>https://blog.csdn.net/justry_deng/article/details/91569132</linked>
      *
      * @param isHttps 是否是HTTPS请求
-     *
-     * @return  HttpClient实例
+     * @return HttpClient实例
      * @date 2019/9/18 17:57
      */
     private CloseableHttpClient getHttpClient(boolean isHttps) {
@@ -393,25 +475,16 @@ public class HttpClientUtil {
     /**
      * HTTPS辅助方法, 为HTTPS请求 创建SSLSocketFactory实例、TrustManager实例
      *
-     * @param needVerifyCa
-     *         是否需要检验CA证书(即:是否需要检验服务器的身份)
-     * @param caInputStream
-     *         CA证书。(若不需要检验证书，那么此处传null即可)
-     * @param cAalias
-     *         别名。(若不需要检验证书，那么此处传null即可)
-     *         注意:别名应该是唯一的， 别名不要和其他的别名一样，否者会覆盖之前的相同别名的证书信息。别名即key-value中的key。
-     *
+     * @param needVerifyCa  是否需要检验CA证书(即:是否需要检验服务器的身份)
+     * @param caInputStream CA证书。(若不需要检验证书，那么此处传null即可)
+     * @param cAalias       别名。(若不需要检验证书，那么此处传null即可)
+     *                      注意:别名应该是唯一的， 别名不要和其他的别名一样，否者会覆盖之前的相同别名的证书信息。别名即key-value中的key。
      * @return SSLConnectionSocketFactory实例
-     * @throws NoSuchAlgorithmException
-     *         异常信息
-     * @throws CertificateException
-     *         异常信息
-     * @throws KeyStoreException
-     *         异常信息
-     * @throws IOException
-     *         异常信息
-     * @throws KeyManagementException
-     *         异常信息
+     * @throws NoSuchAlgorithmException 异常信息
+     * @throws CertificateException     异常信息
+     * @throws KeyStoreException        异常信息
+     * @throws IOException              异常信息
+     * @throws KeyManagementException   异常信息
      * @date 2019/6/11 19:52
      */
     private static SSLConnectionSocketFactory getSocketFactory(boolean needVerifyCa, InputStream caInputStream, String cAalias)
@@ -458,15 +531,13 @@ public class HttpClientUtil {
      * 获取(密钥及证书)仓库
      * 注:该仓库用于存放 密钥以及证书
      *
-     * @param caInputStream
-     *         CA证书(此证书应由要访问的服务端提供)
-     * @param cAalias
-     *         别名
-     *         注意:别名应该是唯一的， 别名不要和其他的别名一样，否者会覆盖之前的相同别名的证书信息。别名即key-value中的key。
+     * @param caInputStream CA证书(此证书应由要访问的服务端提供)
+     * @param cAalias       别名
+     *                      注意:别名应该是唯一的， 别名不要和其他的别名一样，否者会覆盖之前的相同别名的证书信息。别名即key-value中的key。
      * @return 密钥、证书 仓库
-     * @throws KeyStoreException 异常信息
-     * @throws CertificateException 异常信息
-     * @throws IOException 异常信息
+     * @throws KeyStoreException        异常信息
+     * @throws CertificateException     异常信息
+     * @throws IOException              异常信息
      * @throws NoSuchAlgorithmException 异常信息
      * @date 2019/6/11 18:48
      */
