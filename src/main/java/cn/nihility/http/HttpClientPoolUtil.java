@@ -22,11 +22,11 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -154,13 +154,14 @@ public class HttpClientPoolUtil {
         String httpGetUrl1 = "https://www.baidu.com/";
         String httpPostUrl = "http://127.0.0.1:8080/httpclient/post_way_three";
         String uploadPostUrl = "http://127.0.0.1:8080/httpclient/upload";
+        String httpGetDownloadUrl = "http://10.0.41.80:8080/httpclient/download/redis-5.0.7.tar.gz";
 
         HttpClientUser var = new HttpClientUser("HttpPool用户名", 20);
         Map<String, String> urlParam = new HashMap<>(8);
         urlParam.put("name", "&&名称");
         urlParam.put("age", "30");
 
-        int loop = 1 ;
+        /*int loop = 1 ;
         for (int i = 0; i < loop; i++) {
             System.out.println("http get [" + httpGet(httpGetUrl) + "]");
             System.out.println("http get [" + httpGet(httpGetUrl1) + "]");
@@ -173,7 +174,9 @@ public class HttpClientPoolUtil {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
+
+        System.out.println(httpGetDownloadFile(httpGetDownloadUrl));
     }
 
     public static String httpGet(String url) {
@@ -281,6 +284,64 @@ public class HttpClientPoolUtil {
         httpPost.setEntity(httpRequestEntity);
 
         return execute(httpPost);
+    }
+
+    public static String httpGetDownloadFile(String url) {
+
+        final HttpGet httpGet = new HttpGet(url);
+
+        String fileName = url.substring(url.lastIndexOf("/"));
+        log.info("下载文件 [{}]", fileName);
+
+        CloseableHttpResponse httpResponse = null;
+        String result = null;
+        try {
+            httpResponse = httpClient.execute(httpGet);
+            int code = httpResponse.getStatusLine().getStatusCode();
+            // 从响应中获取数据文件数据流
+            final HttpEntity responseEntity = httpResponse.getEntity();
+            if (null != responseEntity) {
+                if (responseEntity.isStreaming()) {
+                    final Path dirPath = Paths.get("dir");
+                    final File dirFile = dirPath.toFile();
+                    log.info("保存文件路径 [{}]", dirFile.getAbsolutePath());
+                    if (!dirFile.exists()) {
+                        dirFile.mkdirs();
+                    }
+                    final File writeToFile = new File(dirFile, fileName);
+                    if (!writeToFile.exists()) {
+                        writeToFile.createNewFile();
+                    }
+                    try (final BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(writeToFile));
+                         final InputStream inputStream = responseEntity.getContent()) {
+                        int len;
+                        int size = 0;
+                        byte[] buffer = new byte[4096];
+                        while ((len = inputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, len);
+                            size += len;
+                        }
+                        outputStream.flush();
+                        log.info("下载文件大小 [{}]", size);
+                    }
+
+                    result = "文件下载完成";
+                } else {
+                    result = EntityUtils.toString(httpResponse.getEntity());
+                }
+            } else {
+                result = "没有响应内容";
+            }
+            if (code != HttpStatus.SC_OK) {
+                log.error("请求[{}]，返回状态码:[{}]，返回数据：[{}]", url, code, result);
+            }
+        } catch (IOException e) {
+            log.error("收集服务配置 http 请求异常", e);
+        } finally {
+            closeHttpResponse(httpResponse);
+        }
+        return result;
+
     }
 
     public static String execute(final HttpUriRequest httpRequest) {
