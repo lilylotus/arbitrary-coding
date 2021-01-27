@@ -33,7 +33,7 @@ public class RunTest {
 
         URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), null);
         Thread.currentThread().setContextClassLoader(classLoader);
-        Class<?> mainClass = Class.forName("cn.nihility.boot.BootLearnApplication", false, classLoader);
+        Class<?> mainClass = Class.forName("cn.nihility.BootLearnApplication", false, classLoader);
         Method mainMethod = mainClass.getDeclaredMethod("main", String[].class);
         mainMethod.setAccessible(true);
         mainMethod.invoke(null, new Object[] { args });
