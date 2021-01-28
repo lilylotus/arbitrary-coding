@@ -85,6 +85,9 @@ dependencies {
 	implementation 'org.apache.httpcomponents:httpmime:4.5.13'
 	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
 
+	// rabbitmq
+	implementation 'com.rabbitmq:amqp-client:5.10.0'
+
 	implementation fileTree(dir: 'lib', includes: ["*.jar"])
 
 	// other tools
