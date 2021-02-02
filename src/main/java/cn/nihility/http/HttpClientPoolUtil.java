@@ -6,14 +6,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -58,10 +62,12 @@ public class HttpClientPoolUtil {
 
     private final static Logger log = LoggerFactory.getLogger(HttpClientPoolUtil.class);
 
-    /**
-     * 线程安全，所有的线程都可以使用它一起发送 http 请求
-     */
+    /** 线程安全，所有的线程都可以使用它一起发送 http 请求 */
     private static CloseableHttpClient httpClient;
+    /** CookieStore 对象 */
+    private static CookieStore cookieStore = null;
+    /** Basic Auth 管理对象 **/
+    private static BasicCredentialsProvider basicCredentialsProvider = null;
 
     /**
      * http 请求配置
@@ -89,6 +95,11 @@ public class HttpClientPoolUtil {
                 .register("https", sslConnectionSocketFactory).build();
         // 默认实现 : PoolingHttpClientConnectionManager.getDefaultRegistry
         */
+        // 注册访问协议相关的 Socket 工厂
+        /*Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+            .register("http", PlainConnectionSocketFactory.getSocketFactory())
+            .register("https", SSLConnectionSocketFactory.getSocketFactory())
+            .build();*/
 
         // 1. 创建连接池管理器, 默认同时支持 HTTP/HTTPS
         /*
@@ -103,19 +114,29 @@ public class HttpClientPoolUtil {
         * 1.2 设置连接器最多同时支持 1000 个链接
         * 1.3 设置每个路由最多支持 50 个链接。注意这里路由是指 IP+PORT 或者指域名。
         * (如果使用域名来访问则每个域名有自己的链接池，如果使用 IP+PORT 访问，则每个 IP+PORT 有自己的链接池)
+        *
+        * 默认注入了 PoolingHttpClientConnectionManager.getDefaultRegistry() -> http/https 支持
         * */
+        //PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         final PoolingHttpClientConnectionManager connectionManager =
             new PoolingHttpClientConnectionManager(60000, TimeUnit.MILLISECONDS);
         connectionManager.setMaxTotal(MAX_TOTAL_COUNT);
         connectionManager.setDefaultMaxPerRoute(MAX_PER_ROUT_COUNT);
+        connectionManager.setValidateAfterInactivity(5000);
+        final SocketConfig socketConfig = SocketConfig.custom()
+            .setSoTimeout(30)
+            .setTcpNoDelay(true)
+            .build();
+        connectionManager.setDefaultSocketConfig(socketConfig);
 
         /*
+        * Http 请求配置
         * setConnectTimeout(1000) : 设置客户端发起TCP连接请求的超时时间
         * setConnectionRequestTimeout(3000) : 设置客户端从连接池获取链接的超时时间
         * setSocketTimeout(3000)  : 设置客户端等待服务端返回数据的超时时间
         * */
         requestConfig = RequestConfig.custom()
-            .setConnectTimeout(1000)
+            .setConnectTimeout(3000)
             .setConnectionRequestTimeout(3000)
             .setSocketTimeout(5000)
             .build();
@@ -123,16 +144,36 @@ public class HttpClientPoolUtil {
         // 设置重试次数 .setRetryHandler(requestRetryHandler)
         // DefaultHttpRequestRetryHandler requestRetryHandler = new DefaultHttpRequestRetryHandler(2, false);
 
+        // 设置 Cookie
+        cookieStore = new BasicCookieStore();
+        // 设置 Basic Auth 对象
+        basicCredentialsProvider = new BasicCredentialsProvider();
+        // 创建监听器，在 JVM 停止或重启时，关闭连接池释放掉连接
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                log.info("执行关闭 HttpClient");
+                httpClient.close();
+                log.info("已经关闭 HttpClient");
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+        }));
+
         // 2. 创建 HttpClient
         httpClient = HttpClients.custom()
+            .setDefaultCookieStore(cookieStore)
+            .setDefaultCredentialsProvider(basicCredentialsProvider)
             .setConnectionManager(connectionManager)
             .setDefaultRequestConfig(requestConfig)
             .disableAutomaticRetries()
+            .evictExpiredConnections()
             .evictIdleConnections(60000, TimeUnit.MILLISECONDS)
             .build();
         /*
         * .disableAutomaticRetries() 禁用自动重试连接
         * */
+
+
 
         /*
         * HttpClient 会在使用某个连接前，监测这个连接是否已经过时，如果服务器端关闭了连接，那么会重现建立一个连接。
