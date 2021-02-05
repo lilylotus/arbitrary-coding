@@ -1,6 +1,6 @@
 package cn.nihility.restart.restart;
 
-import cn.nihility.boot.restart.restart.util.ResourceUtils;
+import cn.nihility.restart.restart.util.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

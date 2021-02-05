@@ -4,12 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RestartClassLoader extends URLClassLoader {
 
@@ -29,14 +27,60 @@ public class RestartClassLoader extends URLClassLoader {
         }
     }
 
+    private List<URL> getResourceList(final String resource) {
+        final List<URL> resources = new ArrayList<>();
+        jarResourceList.stream().map(r -> r.getResourceUrl(resource))
+                .filter(Objects::nonNull).forEach(resources::add);
+        return resources;
+    }
+
+    public static void main(String[] args) throws Exception {
+        ScanLoadLibJar scan = new ScanLoadLibJar("D:\\load_path.txt");
+        scan.scan();
+        Set<URL> jarUrlList = scan.getLibJarUrlSet();
+        URL[] urls = jarUrlList.toArray(new URL[0]);
+
+        String resource = "META-INF/spring.factories";
+        RestartClassLoader loader = new RestartClassLoader(urls, RestartClassLoader.class.getClassLoader(), jarUrlList);
+        final List<URL> resUrlList = loader.getResourceList(resource);
+
+        System.out.println(resUrlList.size());
+
+        //final UrlListEnumeration<URL> em = new UrlListEnumeration<>(resUrlList);
+
+        final Enumeration<URL> em = loader.getResources(resource);
+
+        //final CompoundEnumeration<URL> enumeration = new CompoundEnumeration<>(null, em);
+
+        while (em.hasMoreElements()) {
+            System.out.println(em.nextElement());
+        }
+
+        final Class<?> aClass = Class.forName("cn.nihility.test.Hei", true, loader);
+        System.out.println(aClass);
+
+        final Method main = aClass.getDeclaredMethod("main", String[].class);
+        main.invoke(null, new Object[]{new String[0]});
+    }
+
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-        return super.getResources(name);
+        List<URL> urlList = getResourceList(name);
+        if (urlList.isEmpty()) {
+            return super.getResources(name);
+        } else {
+            return new UrlListEnumeration<>(urlList);
+        }
     }
 
     @Override
     public URL getResource(String name) {
-        return super.getResource(name);
+        List<URL> urlList = getResourceList(name);
+        if (urlList.isEmpty()) {
+            return super.getResource(name);
+        } else {
+            return urlList.get(0);
+        }
     }
 
     @Override
@@ -120,6 +164,25 @@ public class RestartClassLoader extends URLClassLoader {
             return element;
         }
 
+    }
+
+    private static class UrlListEnumeration<E> implements Enumeration<E> {
+
+        private final Iterator<E> iterator;
+
+        private UrlListEnumeration(List<E> urlList) {
+            iterator = urlList.iterator();
+        }
+
+        @Override
+        public boolean hasMoreElements() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public E nextElement() {
+            return iterator.next();
+        }
     }
 
 }

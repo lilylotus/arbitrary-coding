@@ -1,6 +1,7 @@
 package cn.nihility.restart.restart;
 
-import cn.nihility.boot.restart.restart.util.ResourceUtils;
+import cn.nihility.restart.restart.util.ResourceUtils;
+import cn.nihility.restart.restart.util.RestartUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

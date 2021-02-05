@@ -1,7 +1,7 @@
 package cn.nihility.restart.restart;
 
-import cn.nihility.boot.restart.util.PropertyUtil;
-import cn.nihility.boot.restart.util.ReloadClassUtil;
+import cn.nihility.restart.reload.PropertyUtil;
+import cn.nihility.restart.reload.ReloadClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +41,7 @@ public class ScanLoadLibJar {
         final List<URL> lib = new ArrayList<>(60);
         if (configLines.size() > 0) {
             configLines.forEach(path -> {
-                try {
-                    lib.addAll(loadPathJar(path));
-                } catch (UnsupportedEncodingException e) {
-                    // do nothing
-                }
+                lib.addAll(loadPathJar(path));
             });
         }
         return lib;
@@ -105,7 +101,7 @@ public class ScanLoadLibJar {
      * @param path jar 包所在的路径，目录或单个 jar 文件路径
      * @return jar 包路径的 url
      */
-    private List<URL> loadPathJar(String path) throws UnsupportedEncodingException {
+    private List<URL> loadPathJar(String path) {
         String root = ReloadClassUtil.cleanupPath(ReloadClassUtil.handleUrl(path));
         log.debug("加载 [{}] 中的 jar", root);
 
