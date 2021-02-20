@@ -75,7 +75,7 @@ public class RedisConfiguration extends CachingConfigurerSupport {
         // key 采用 String 的序列化方式
         redisTemplate.setKeySerializer(stringRedisSerializer);
         // 使用它操作普通字符串，会出现 Could not read JSON template.setValueSerializer(jackson2JsonRedisSerializer);
-        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+        redisTemplate.setValueSerializer(stringRedisSerializer);
         // hash 的 key 也采用 String 的序列化方式
         redisTemplate.setHashKeySerializer(stringRedisSerializer);
         // hash 的 value 序列化方式采用 jackson
