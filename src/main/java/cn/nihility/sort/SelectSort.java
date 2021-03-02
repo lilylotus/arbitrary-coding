@@ -1,7 +1,6 @@
 package cn.nihility.sort;
 
 import cn.nihility.util.CommonUtil;
-import cn.nihility.util.ISort;
 
 public class SelectSort<T extends Comparable<T>> implements ISort<T> {
     @Override

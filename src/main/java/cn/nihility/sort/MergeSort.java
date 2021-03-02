@@ -1,9 +1,6 @@
 package cn.nihility.sort;
 
 import cn.nihility.util.CommonUtil;
-import cn.nihility.util.ISort;
-
-import java.util.Comparator;
 
 public class MergeSort<T extends Comparable<T>> implements ISort<T> {
     @Override

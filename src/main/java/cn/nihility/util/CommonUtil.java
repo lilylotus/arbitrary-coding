@@ -1,5 +1,7 @@
 package cn.nihility.util;
 
+import cn.nihility.sort.ISort;
+
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

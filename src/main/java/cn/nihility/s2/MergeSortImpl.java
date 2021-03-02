@@ -1,7 +1,5 @@
 package cn.nihility.s2;
 
-import edu.princeton.cs.algs4.Merge;
-
 public class MergeSortImpl<T extends Comparable<T>> implements ISort<T> {
     @Override
     public void sort(T[] array) {
