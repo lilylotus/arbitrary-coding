@@ -88,6 +88,9 @@ dependencies {
 	// rabbitmq
 	implementation 'com.rabbitmq:amqp-client:5.10.0'
 
+	// netty
+	implementation 'io.netty:netty-all:4.1.58.Final'
+
 	implementation fileTree(dir: 'lib', includes: ["*.jar"])
 
 	// other tools
