@@ -1,7 +1,7 @@
 package cn.nihility.nettry;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -14,10 +14,15 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Netty Http Server 的启动类
+ */
 public class NettyHttpServer {
 
-    private final static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(NettyHttpServer.class);
+    private final static Logger log = LoggerFactory.getLogger(NettyHttpServer.class);
 
     private int port;
 
@@ -63,12 +68,17 @@ public class NettyHttpServer {
                             // server 端发送的是 httpResponse，所以要使用 HttpResponseEncoder 进行编码
                             ch.pipeline().addLast("http-encoder", new HttpResponseEncoder());
                             // 将多个消息转换为单一的 FullHttpRequest 或 FullHttpResponse 对象
-                            ch.pipeline().addLast("http-aggregator", new HttpObjectAggregator(512 * 1024));
+                            ch.pipeline().addLast("http-aggregator", new HttpObjectAggregator(65536));
                             // 解决大数据包传输问题，用于支持异步写大量数据流并且不需要消耗大量内存也不会导致内存溢出错误( OutOfMemoryError )
                             // 仅支持 ChunkedInput 类型的消息。也就是说，仅当消息类型是 ChunkedInput 时才能实现 ChunkedWriteHandler 提供的大数据包传输功能
                             // 解决大码流的问题
                             ch.pipeline().addLast("http-chunked", new ChunkedWriteHandler());
                             ch.pipeline().addLast("http-handler", new NettyHttpServerHandler());
+
+                            // HTTPS 配置
+                            /*SelfSignedCertificate ssc = new SelfSignedCertificate();
+                            SslContext sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+                            ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()));*/
                         }
 
                     })
@@ -87,8 +97,8 @@ public class NettyHttpServer {
                     // childOption 是用来给父级 ServerChannel 之下的 Channels 设置参数的
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            // 绑定并开始接受传入的连接。
-            ChannelFuture f = b.bind(port).sync();
+            // 绑定并开始接受传入的连接。b.bind(PORT).sync().channel();
+            Channel channel = b.bind(port).sync().channel();
             log.info("Netty Http Server 启动，端口 [{}]", port);
 
             /*
@@ -96,7 +106,7 @@ public class NettyHttpServer {
             * sync() 会同步等待连接操作结果，用户线程将在此 wait()，直到连接操作完成之后，线程被 notify(),用户代码继续执行
             * closeFuture() 当 Channel 关闭时返回一个 ChannelFuture,用于链路检测
             * */
-            f.channel().closeFuture().sync();
+            channel.closeFuture().sync();
         } catch (InterruptedException e) {
             log.error("Netty Http Server 运行时遇到异常", e);
         } finally {
