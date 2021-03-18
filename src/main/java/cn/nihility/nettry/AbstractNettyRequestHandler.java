@@ -28,6 +28,9 @@ public abstract class AbstractNettyRequestHandler implements NettyRequestHandler
                 HttpResponseStatus.OK);
 
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json;charset=UTF-8");
+        //response.headers().set(HttpHeaderNames.CONNECTION, "close");
+        response.headers().set(HttpHeaderNames.CONNECTION, "keep-alive");
+        //response.headers().set(HttpHeaderNames.TRANSFER_ENCODING, "chunked");
 
         if (HttpMethod.POST.name().equals(methodName)) {
             doPost(httpRequest, response);
@@ -41,7 +44,9 @@ public abstract class AbstractNettyRequestHandler implements NettyRequestHandler
             doOther(httpRequest, response);
         }
 
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+        //ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(response);
 
     }
 
