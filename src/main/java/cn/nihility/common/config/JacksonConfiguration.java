@@ -1,138 +1,67 @@
 package cn.nihility.common.config;
 
-import cn.nihility.util.TimeUtil;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonTokenId;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class JacksonConfiguration {
+
+    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_PATTERN = "yyyy-MM-dd";
+    private static final String TIME_PATTERN = "HH:mm:ss";
+
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
+        /*final JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));*/
+
+        return builder -> {
+            builder.simpleDateFormat(DATE_TIME_PATTERN);
+            builder.serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+            builder.deserializers(new LocalDateDeserializer(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+            builder.serializers(new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)));
+            builder.deserializers(new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)));
+            builder.serializers(new LocalTimeSerializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
+            builder.deserializers(new LocalTimeDeserializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
+            //builder.modules(javaTimeModule);
+        };
+    }
+
     /**
      * 处理序列化后的1.8的日期时间格式
-     *
-     * @return
      */
     @Bean
     public ObjectMapper getObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
-        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer());
-        javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer());
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer());
-        javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer());
+
+        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)));
+        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)));
+
+        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern(DATE_PATTERN)));
+
+        javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
+        javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
+
         objectMapper.registerModule(javaTimeModule);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper;
-    }
-
-    public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
-
-        @Override
-        public void serialize(LocalDateTime value,
-                              JsonGenerator jsonGenerator,
-                              SerializerProvider provider)
-                throws IOException {
-            if (value == null) {
-                jsonGenerator.writeNull();
-            } else {
-                jsonGenerator.writeNumber(TimeUtil.toMilli(value));
-            }
-        }
-    }
-
-    public class LocalDateSerializer extends JsonSerializer<LocalDate> {
-
-        @Override
-        public void serialize(LocalDate value,
-                              JsonGenerator jsonGenerator,
-                              SerializerProvider provider)
-                throws IOException {
-            if (value == null) {
-                jsonGenerator.writeNull();
-            } else {
-                jsonGenerator.writeNumber(TimeUtil.toMilli(value));
-            }
-        }
-    }
-
-    public class LocalTimeSerializer extends JsonSerializer<LocalTime> {
-
-        @Override
-        public void serialize(LocalTime value,
-                              JsonGenerator jsonGenerator,
-                              SerializerProvider provider)
-                throws IOException {
-            if (value == null) {
-                jsonGenerator.writeNull();
-            } else {
-                jsonGenerator.writeNumber(TimeUtil.toMilli(value));
-            }
-        }
-    }
-
-    public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
-
-
-        @Override
-        public LocalDateTime deserialize(JsonParser parser, DeserializationContext deserializationContext)
-                throws IOException, JsonProcessingException {
-            if (parser.hasTokenId(JsonTokenId.ID_NUMBER_INT)) {
-                String string = parser.getText().trim();
-                if (string.length() == 0) {
-                    return null;
-                }
-
-                long timestamp = Long.parseLong(string);
-                return TimeUtil.toLocalDateTime(timestamp);
-            }
-            return null;
-        }
-    }
-
-    public class LocalDateDeserializer extends JsonDeserializer<LocalDate> {
-        @Override
-        public LocalDate deserialize(JsonParser parser, DeserializationContext deserializationContext)
-                throws IOException, JsonProcessingException {
-            if (parser.hasTokenId(JsonTokenId.ID_NUMBER_INT)) {
-                String string = parser.getText().trim();
-                if (string.length() == 0) {
-                    return null;
-                }
-
-                long timestamp = Long.parseLong(string);
-                return TimeUtil.toLocalDate(timestamp);
-            }
-            return null;
-        }
-    }
-
-    public class LocalTimeDeserializer extends JsonDeserializer<LocalTime> {
-        @Override
-        public LocalTime deserialize(JsonParser parser, DeserializationContext deserializationContext)
-                throws IOException, JsonProcessingException {
-            if (parser.hasTokenId(JsonTokenId.ID_NUMBER_INT)) {
-                String string = parser.getText().trim();
-                if (string.length() == 0) {
-                    return null;
-                }
-
-                long timestamp = Long.parseLong(string);
-                return TimeUtil.toLocalTime(timestamp);
-            }
-            return null;
-        }
     }
 
 }

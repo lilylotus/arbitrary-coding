@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
+
 /**
  * Netty Http Server 针对请求的处理模板
  */
@@ -30,6 +32,7 @@ public abstract class AbstractNettyRequestHandler implements NettyRequestHandler
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json;charset=UTF-8");
         //response.headers().set(HttpHeaderNames.CONNECTION, "close");
         response.headers().set(HttpHeaderNames.CONNECTION, "keep-alive");
+        response.headers().set(HttpHeaderNames.DATE, LocalDateTime.now());
         //response.headers().set(HttpHeaderNames.TRANSFER_ENCODING, "chunked");
 
         if (HttpMethod.POST.name().equals(methodName)) {
@@ -44,7 +47,8 @@ public abstract class AbstractNettyRequestHandler implements NettyRequestHandler
             doOther(httpRequest, response);
         }
 
-        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+        response.headers().set(HttpHeaderNames.TRANSFER_ENCODING, "chunked");
+        //response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
         //ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         ctx.writeAndFlush(response);
 
