@@ -33,9 +33,13 @@ public class MetaObject {
         } else if (objectWrapperFactory.hasWrapperFor(object)) {
             this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
         } else if (object instanceof Map) {
-            this.objectWrapper = new MapWrapper(this, (Map) object);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> map = (Map<String, Object>) object;
+            this.objectWrapper = new MapWrapper(this, map);
         } else if (object instanceof Collection) {
-            this.objectWrapper = new CollectionWrapper(this, (Collection) object);
+            @SuppressWarnings("unchecked")
+            Collection<Object> collection = (Collection<Object>) object;
+            this.objectWrapper = new CollectionWrapper(this, collection);
         } else {
             this.objectWrapper = new BeanWrapper(this, object);
         }

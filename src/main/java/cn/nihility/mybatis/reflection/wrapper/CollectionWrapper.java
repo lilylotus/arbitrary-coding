@@ -8,72 +8,76 @@ import java.util.Collection;
 import java.util.List;
 
 public class CollectionWrapper implements ObjectWrapper {
-    public CollectionWrapper(MetaObject metaObject, Collection object) {
 
+    private final Collection<Object> object;
+
+    public CollectionWrapper(MetaObject metaObject, Collection object) {
+        this.object = object;
     }
 
     @Override
     public Object get(PropertyTokenizer prop) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void set(PropertyTokenizer prop, Object value) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String findProperty(String name, boolean useCamelCaseMapping) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String[] getGetterNames() {
-        return new String[0];
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String[] getSetterNames() {
-        return new String[0];
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Class<?> getSetterType(String name) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Class<?> getGetterType(String name) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean hasSetter(String name) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean hasGetter(String name) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isCollection() {
-        return false;
+        return true;
     }
 
     @Override
     public void add(Object element) {
-
+        object.add(element);
     }
 
     @Override
     public <E> void addAll(List<E> element) {
-
+        object.addAll(element);
     }
+
 }

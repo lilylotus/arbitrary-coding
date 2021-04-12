@@ -1,4 +1,4 @@
-package cn.nihility.mybatis.reflection.test;
+package cn.nihility.mybatis.pojo;
 
 import java.time.LocalDateTime;
 

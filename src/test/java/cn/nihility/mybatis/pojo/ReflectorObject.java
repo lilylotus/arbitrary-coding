@@ -1,4 +1,4 @@
-package cn.nihility.mybatis.reflection.test;
+package cn.nihility.mybatis.pojo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +13,7 @@ public class ReflectorObject {
 
     private List<String> stringList;
 
-    private ReflectorObject innerObject;
+    private OtherReflectorObject otherReflectorObject;
 
 
     public String getStringObject() {
@@ -48,4 +48,11 @@ public class ReflectorObject {
         this.longObject = longObject;
     }
 
+    public OtherReflectorObject getOtherReflectorObject() {
+        return otherReflectorObject;
+    }
+
+    public void setOtherReflectorObject(OtherReflectorObject otherReflectorObject) {
+        this.otherReflectorObject = otherReflectorObject;
+    }
 }

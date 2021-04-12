@@ -94,6 +94,7 @@ public class BeanWrapper extends BaseWrapper {
             if (metaClass.hasSetter(prop.getIndexedName())) {
                 MetaObject metaObject = this.metaObject.metaObjectForProperty(prop.getIndexedName());
                 if (metaObject == SystemMetaObject.NULL_META_OBJECT) {
+                    // 当对象实例属性值为空时，采用类属性方式获取，反射
                     return metaClass.hasSetter(name);
                 } else {
                     return metaObject.hasSetter(prop.getChildren());
