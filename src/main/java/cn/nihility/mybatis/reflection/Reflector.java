@@ -1,6 +1,6 @@
 package cn.nihility.mybatis.reflection;
 
-import cn.nihility.mybatis.reflection.exception.ReflectionException;
+import cn.nihility.mybatis.exception.ReflectionException;
 import cn.nihility.mybatis.reflection.invoker.*;
 import cn.nihility.mybatis.reflection.property.PropertyName;
 import org.slf4j.Logger;

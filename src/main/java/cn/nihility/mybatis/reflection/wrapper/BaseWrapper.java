@@ -1,7 +1,7 @@
 package cn.nihility.mybatis.reflection.wrapper;
 
 import cn.nihility.mybatis.reflection.MetaObject;
-import cn.nihility.mybatis.reflection.exception.ReflectionException;
+import cn.nihility.mybatis.exception.ReflectionException;
 import cn.nihility.mybatis.reflection.property.PropertyTokenizer;
 
 import java.util.List;

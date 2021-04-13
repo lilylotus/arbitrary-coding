@@ -1,4 +1,4 @@
-package cn.nihility.nettry;
+package cn.nihility.netty;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.FullHttpRequest;

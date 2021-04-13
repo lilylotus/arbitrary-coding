@@ -16,7 +16,7 @@
 package cn.nihility.mybatis.reflection.factory;
 
 import cn.nihility.mybatis.reflection.Reflector;
-import cn.nihility.mybatis.reflection.exception.ReflectionException;
+import cn.nihility.mybatis.exception.ReflectionException;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;

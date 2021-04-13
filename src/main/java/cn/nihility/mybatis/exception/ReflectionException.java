@@ -1,4 +1,4 @@
-package cn.nihility.mybatis.reflection.exception;
+package cn.nihility.mybatis.exception;
 
 public class ReflectionException extends RuntimeException {
 

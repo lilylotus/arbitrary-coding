@@ -1,4 +1,4 @@
-package cn.nihility.mybatis.reflection.exception;
+package cn.nihility.mybatis.exception;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;

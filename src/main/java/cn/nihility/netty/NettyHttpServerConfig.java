@@ -1,4 +1,4 @@
-package cn.nihility.nettry;
+package cn.nihility.netty;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

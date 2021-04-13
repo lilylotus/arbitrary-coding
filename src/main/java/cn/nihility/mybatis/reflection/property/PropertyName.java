@@ -1,7 +1,7 @@
 package cn.nihility.mybatis.reflection.property;
 
 
-import cn.nihility.mybatis.reflection.exception.ReflectionException;
+import cn.nihility.mybatis.exception.ReflectionException;
 
 import java.util.Locale;
 

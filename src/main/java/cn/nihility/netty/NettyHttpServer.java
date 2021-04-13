@@ -1,4 +1,4 @@
-package cn.nihility.nettry;
+package cn.nihility.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;

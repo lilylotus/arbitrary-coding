@@ -41,7 +41,9 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
         // list[0].fieldProperty
         // name = list , indexedName = list[0]
         if (delim > -1) {
-            // list[0] : map[key]
+            // indexName = list[0] : map[key]
+            // name = list : map
+            // index = 0 : key
             index = name.substring(delim + 1, name.length() - 1);
             name = name.substring(0, delim);
         }

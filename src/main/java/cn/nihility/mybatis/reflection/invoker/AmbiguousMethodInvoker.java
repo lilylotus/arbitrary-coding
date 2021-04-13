@@ -1,6 +1,6 @@
 package cn.nihility.mybatis.reflection.invoker;
 
-import cn.nihility.mybatis.reflection.exception.ReflectionException;
+import cn.nihility.mybatis.exception.ReflectionException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

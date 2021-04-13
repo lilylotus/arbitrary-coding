@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author orchid
@@ -58,6 +59,30 @@ public class ReflectionTest {
         Assertions.assertEquals(proValue, metaObject.getValue(otherProStringList3));
 
         Assertions.assertEquals(mapValue, metaObject.getValue(otherProStringMap));
+
+    }
+
+    @Test
+    public void testMetaObjectAddList() {
+        ReflectorObject object = new ReflectorObject();
+        String osPro = "otherReflectorObject.stringList";
+        String osPro1 = "otherReflectorObject.stringList[0]";
+        MetaObject metaObject = new MetaObject(object, new DefaultObjectFactory(),
+            new DefaultObjectWrapperFactory(), new DefaultReflectorFactory());
+
+        Assertions.assertTrue(metaObject.hasSetter(osPro));
+
+        String stringValue = "firstString";
+        List<String> data = new ArrayList<>();
+        data.add(stringValue);
+        metaObject.setValue(osPro, data);
+
+        @SuppressWarnings("unchecked")
+        List<String> dataList = (List<String>) metaObject.getValue(osPro);
+        Assertions.assertEquals(stringValue, dataList.get(0));
+
+        Object stringValue1 = metaObject.getValue(osPro1);
+        Assertions.assertEquals(stringValue, stringValue1);
 
     }
 

@@ -1,4 +1,4 @@
-package cn.nihility.nettry;
+package cn.nihility.netty;
 
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;

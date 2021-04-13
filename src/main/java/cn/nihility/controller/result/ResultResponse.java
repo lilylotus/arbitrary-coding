@@ -76,7 +76,7 @@ public class ResultResponse<T> {
      */
     public static <T> ResultResponse<T> failure(ResultStatus resultStatus, T data) {
         if (resultStatus == null) {
-            return new ResultResponse<T>(ResultStatus.INTERNAL_SERVER_ERROR, null);
+            return new ResultResponse<T>(ResultStatus.INTERNAL_SERVER_ERROR, data);
         }
         return new ResultResponse<T>(resultStatus, data);
     }
