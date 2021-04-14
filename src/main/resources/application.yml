@@ -31,3 +31,17 @@ spring:
         max-wait: 1000
       # 关闭超时时间
       shutdown-timeout: 100
+
+xxl:
+  job:
+    accessToken: ''
+    admin:
+      addresses: http://127.0.0.1:21080/xxl-job-admin
+    executor:
+      # 注意：这个执行器名称要和 xxl-job 中配置的执行器名称对应上，没有去 xxl-job 新建一个执行器
+      appname: xxlTaskExecutor
+      ip: ''
+      logpath:
+      logretentiondays: -1
+      # 服务启动会开启一个端口监听
+      port: 9997

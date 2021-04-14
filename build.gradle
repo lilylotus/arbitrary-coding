@@ -82,6 +82,9 @@ dependencies {
 	/* log4j2 异步日志所需 */
 	implementation "com.lmax:disruptor:3.4.2"
 
+	// xxl-job 任务调度
+	implementation 'com.xuxueli:xxl-job-core:2.2.0'
+
 	// http client 文件上传
 	implementation 'org.apache.httpcomponents:httpmime:4.5.13'
 	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
