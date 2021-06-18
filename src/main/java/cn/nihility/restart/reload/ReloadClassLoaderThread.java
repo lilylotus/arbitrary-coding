@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 
 public class ReloadClassLoaderThread extends Thread {
 
-    private final static Logger log = LoggerFactory.getLogger(ReloadClassLoaderThread.class);
+    private static final Logger log = LoggerFactory.getLogger(ReloadClassLoaderThread.class);
 
     private final String mainClassName;
     private final String[] args;

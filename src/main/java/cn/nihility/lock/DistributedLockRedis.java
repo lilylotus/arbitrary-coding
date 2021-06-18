@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class DistributedLockRedis implements DistributedLock {
 
-    private final static Logger log = LoggerFactory.getLogger(DistributedLockRedis.class);
+    private static final Logger log = LoggerFactory.getLogger(DistributedLockRedis.class);
     private final RedissonClient redissonClient;
     private final DistributedLockMysql distributedLockMysql;
 

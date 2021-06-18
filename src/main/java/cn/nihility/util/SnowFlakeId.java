@@ -38,14 +38,14 @@ public class SnowFlakeId {
     /**
      * 起始的时间戳
      */
-    private final static long START_STAMP = 1571533232000L;
+    private static final long START_STAMP = 1571533232000L;
 
     /**
      * 每一部分占用的位数
      */
-    private final static long SEQUENCE_BIT = 12;   // 序列号占用的位数
-    private final static long MACHINE_BIT = 5;     // 机器标识占用的位数
-    private final static long DATA_CENTER_BIT = 5; // 数据中心占用的位数
+    private static final long SEQUENCE_BIT = 12;   // 序列号占用的位数
+    private static final long MACHINE_BIT = 5;     // 机器标识占用的位数
+    private static final long DATA_CENTER_BIT = 5; // 数据中心占用的位数
 
     /**
      * 每一部分的最大值
@@ -54,16 +54,16 @@ public class SnowFlakeId {
      * 只需要 13 位数 -1 即 12 位的最大值，这里使用它的反码（1000000000000的反码 == 0111111111111）
      * ~ 表示该数的反码
      */
-    private final static long MAX_DATA_CENTER_NUM = ~(-1L << DATA_CENTER_BIT);    // 31
-    private final static long MAX_MACHINE_NUM = ~(-1L << MACHINE_BIT);        // 31
-    private final static long MAX_SEQUENCE = ~(-1L << SEQUENCE_BIT);       // 4095
+    private static final long MAX_DATA_CENTER_NUM = ~(-1L << DATA_CENTER_BIT);    // 31
+    private static final long MAX_MACHINE_NUM = ~(-1L << MACHINE_BIT);        // 31
+    private static final long MAX_SEQUENCE = ~(-1L << SEQUENCE_BIT);       // 4095
 
     /**
      * 每一部分向左的位移
      */
-    private final static long MACHINE_LEFT = SEQUENCE_BIT;
-    private final static long DATA_CENTER_LEFT = SEQUENCE_BIT + MACHINE_BIT;
-    private final static long TIMESTAMP_LEFT = DATA_CENTER_LEFT + DATA_CENTER_BIT;
+    private static final long MACHINE_LEFT = SEQUENCE_BIT;
+    private static final long DATA_CENTER_LEFT = SEQUENCE_BIT + MACHINE_BIT;
+    private static final long TIMESTAMP_LEFT = DATA_CENTER_LEFT + DATA_CENTER_BIT;
 
     private volatile long dataCenterId;   //数据中心
     private volatile long machineId;      //机器标识

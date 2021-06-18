@@ -12,8 +12,8 @@ import java.util.concurrent.TimeoutException;
  */
 public class DurableProducer {
 
-    private final static String EXCHANGE_NAME = "durable-exchange";
-    private final static String QUEUE_NAME = "durable-queue";
+    private static final String EXCHANGE_NAME = "durable-exchange";
+    private static final String QUEUE_NAME = "durable-queue";
 
     public static void main(String[] args) throws IOException, TimeoutException {
         // 创建一个连接

@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MultiThreadFileDownloader extends AbstractDownloader {
-    private final static Logger log = LoggerFactory.getLogger(MultiThreadFileDownloader.class);
+    private static final Logger log = LoggerFactory.getLogger(MultiThreadFileDownloader.class);
 
     private int threadNum;
 

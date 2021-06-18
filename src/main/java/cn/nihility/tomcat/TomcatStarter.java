@@ -13,9 +13,9 @@ import java.io.IOException;
 
 public class TomcatStarter {
 
-    private final static int TOMCAT_STARTER_PORT = 52000;
-    private final static String TOMCAT_HOST_NAME = "10.0.41.80";
-    private final static String TOMCAT_WEBAPP_PATH = "src/main";
+    private static final int TOMCAT_STARTER_PORT = 52000;
+    private static final String TOMCAT_HOST_NAME = "10.0.41.80";
+    private static final String TOMCAT_WEBAPP_PATH = "src/main";
 
     public static void main(String[] args) throws LifecycleException {
         final Tomcat tomcat = new Tomcat();

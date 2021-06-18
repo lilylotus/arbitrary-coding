@@ -24,7 +24,7 @@ import java.util.Objects;
 //@Aspect
 public class RequestLogAspect {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RequestLogAspect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestLogAspect.class);
 
     @Pointcut("execution(* cn.nihility..controller..*(..))")
     public void requestServer() {

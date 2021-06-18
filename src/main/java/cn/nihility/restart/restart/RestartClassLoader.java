@@ -11,7 +11,7 @@ import java.util.*;
 
 public class RestartClassLoader extends URLClassLoader {
 
-    private final static Logger log = LoggerFactory.getLogger(RestartClassLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(RestartClassLoader.class);
 
     private final List<JarResource> jarResourceList = new ArrayList<>(30);
 

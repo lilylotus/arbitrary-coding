@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public abstract class AbstractDownloader implements Downloader {
 
-    private final static Logger log = LoggerFactory.getLogger(AbstractDownloader.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractDownloader.class);
 
     protected RestTemplate restTemplate;
     protected DownloadProgressPrinter downloadProgressPrinter;

@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class KeyValueCacheServiceImpl implements KeyValueCacheService {
-    private final static Logger log = LoggerFactory.getLogger(KeyValueCacheServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(KeyValueCacheServiceImpl.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final StringRedisTemplate stringRedisTemplate;

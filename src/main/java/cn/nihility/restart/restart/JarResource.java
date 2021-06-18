@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class JarResource {
 
-    private final static Logger log = LoggerFactory.getLogger(JarResource.class);
+    private static final Logger log = LoggerFactory.getLogger(JarResource.class);
     private final URL jarUrl;
     private Set<String> classNameSet;
 

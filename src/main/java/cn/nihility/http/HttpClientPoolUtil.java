@@ -60,7 +60,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpClientPoolUtil {
 
-    private final static Logger log = LoggerFactory.getLogger(HttpClientPoolUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpClientPoolUtil.class);
 
     /** 线程安全，所有的线程都可以使用它一起发送 http 请求 */
     private static CloseableHttpClient httpClient;
@@ -74,8 +74,8 @@ public class HttpClientPoolUtil {
      */
     private static RequestConfig requestConfig;
 
-    private final static int MAX_TOTAL_COUNT = 600;
-    private final static int MAX_PER_ROUT_COUNT = 60;
+    private static final int MAX_TOTAL_COUNT = 600;
+    private static final int MAX_PER_ROUT_COUNT = 60;
 
     static {
 

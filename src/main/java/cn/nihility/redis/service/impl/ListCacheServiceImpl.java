@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class ListCacheServiceImpl implements ListCacheService {
-    private final static Logger log = LoggerFactory.getLogger(ListCacheServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ListCacheServiceImpl.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
 

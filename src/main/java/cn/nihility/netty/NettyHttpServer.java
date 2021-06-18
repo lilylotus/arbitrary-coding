@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NettyHttpServer {
 
-    private final static Logger log = LoggerFactory.getLogger(NettyHttpServer.class);
+    private static final Logger log = LoggerFactory.getLogger(NettyHttpServer.class);
 
     private int port;
 

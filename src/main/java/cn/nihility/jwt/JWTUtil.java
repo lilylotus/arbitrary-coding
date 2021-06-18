@@ -15,9 +15,9 @@ import java.util.UUID;
 
 public class JWTUtil {
 
-    private final static String SECRET_KEY = "SECRET_KEY";
-    private final static int EXPIRE_MILLIS_SECONDS = 60 * 60 * 1000;
-    private final static Algorithm HMAC256 = Algorithm.HMAC256(SECRET_KEY);
+    private static final String SECRET_KEY = "SECRET_KEY";
+    private static final int EXPIRE_MILLIS_SECONDS = 60 * 60 * 1000;
+    private static final Algorithm HMAC256 = Algorithm.HMAC256(SECRET_KEY);
 
     public static String createJwt(Map<String, String> params) {
         return createJwt(params, HMAC256);

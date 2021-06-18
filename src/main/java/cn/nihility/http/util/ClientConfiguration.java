@@ -74,7 +74,7 @@ import java.util.Arrays;
  */
 public class ClientConfiguration {
 
-    public final static void main(String[] args) throws Exception {
+    public static final void main(String[] args) throws Exception {
 
         // Use custom message parser / writer to customize the way HTTP
         // messages are parsed from and written out to the data stream.

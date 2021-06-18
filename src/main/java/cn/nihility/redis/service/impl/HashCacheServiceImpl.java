@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class HashCacheServiceImpl implements HashCacheService {
-    private final static Logger log = LoggerFactory.getLogger(HashCacheServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(HashCacheServiceImpl.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
 

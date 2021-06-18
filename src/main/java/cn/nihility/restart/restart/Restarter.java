@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 
 public class Restarter extends Thread {
 
-    private final static Logger log = LoggerFactory.getLogger(Restarter.class);
+    private static final Logger log = LoggerFactory.getLogger(Restarter.class);
 
     private final String mainClassName;
     private final String[] args;

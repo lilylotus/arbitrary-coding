@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/forward")
 public class ForwardController {
 
-    private final static Logger logger = LoggerFactory.getLogger(ForwardController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ForwardController.class);
 
     @PostMapping("/receive")
     public String forward(Model model) {

@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public class InstanceProxy {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(InstanceProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstanceProxy.class);
 
     public static void main(String[] args) {
         Properties properties = new Properties();

@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  */
 public class DistributedLockMysql implements DistributedLock {
 
-    private final static Logger log = LoggerFactory.getLogger(DistributedLockMysql.class);
+    private static final Logger log = LoggerFactory.getLogger(DistributedLockMysql.class);
     private final DataSource dataSource;
 
     public DistributedLockMysql(DataSource dataSource) {

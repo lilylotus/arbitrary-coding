@@ -34,16 +34,16 @@ public class TimeUtil {
     /**
      * {@link DateTimeFormatter}是线程安全的, 所以可以缓存起来
      */
-    public final static ConcurrentMap<String, DateTimeFormatter> FORMATTER_MAP = new ConcurrentHashMap<>(8);
+    public static final ConcurrentMap<String, DateTimeFormatter> FORMATTER_MAP = new ConcurrentHashMap<>(8);
 
-    public final static String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    public final static String DEFAULT_DATE_PATTERN = "yyyy-MM-dd";
-    public final static String DEFAULT_TIME_PATTERN = "HH:mm:ss";
+    public static final String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd";
+    public static final String DEFAULT_TIME_PATTERN = "HH:mm:ss";
 
     /**
      * 星期数组
      */
-    public final static String[] DAY_OF_WEEK = new String[]{"周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+    public static final String[] DAY_OF_WEEK = new String[]{"周一", "周二", "周三", "周四", "周五", "周六", "周日"};
 
     /**
      * {@link LocalDateTime} 转换为 {@link Date}

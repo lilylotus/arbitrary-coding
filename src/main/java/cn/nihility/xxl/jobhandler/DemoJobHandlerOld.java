@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 @Component*/
 public class DemoJobHandlerOld extends IJobHandler {
 
-    private final static Logger logger = org.slf4j.LoggerFactory.getLogger(DemoJobHandlerOld.class);
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(DemoJobHandlerOld.class);
 
     @Override
     public ReturnT<String> execute(String param) throws Exception {

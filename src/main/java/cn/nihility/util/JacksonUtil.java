@@ -31,10 +31,10 @@ import java.util.Map;
 
 public class JacksonUtil {
 
-    private final static String DATE_TIME = "yyyy-MM-dd HH:mm:ss";
-    private final static String DATE = "yyyy-MM-dd";
-    private final static String TIME = "HH:mm:ss";
-    private final static ObjectMapper mapper = new ObjectMapper();
+    private static final String DATE_TIME = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE = "yyyy-MM-dd";
+    private static final String TIME = "HH:mm:ss";
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_TIME);
@@ -60,7 +60,7 @@ public class JacksonUtil {
         mapper.registerModule(timeModule);
     }
 
-    public static byte[] serialize(Object obj) {
+    public static byte[] serialize(Object obj) throws IllegalParseException {
         try {
             return mapper.writeValueAsBytes(obj);
         } catch (JsonProcessingException e) {
@@ -68,7 +68,7 @@ public class JacksonUtil {
         }
     }
 
-    public static <T> T deserialize(byte[] src, Class<T> type) {
+    public static <T> T deserialize(byte[] src, Class<T> type) throws IllegalParseException {
         try {
             return mapper.readValue(src, type);
         } catch (IOException e) {
@@ -76,7 +76,7 @@ public class JacksonUtil {
         }
     }
 
-    public static String objectToJson(Object obj) {
+    public static String objectToJson(Object obj) throws IllegalParseException {
         try {
             return mapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
@@ -92,7 +92,7 @@ public class JacksonUtil {
         }
     }
 
-    public static <T> List<T> jsonToObjectList(String json, Class<T> elementType) {
+    public static <T> List<T> jsonToObjectList(String json, Class<T> elementType) throws IllegalParseException {
         JavaType javaType = mapper.getTypeFactory().constructParametricType(ArrayList.class, elementType);
         try {
             return mapper.readValue(json, javaType);
@@ -101,7 +101,7 @@ public class JacksonUtil {
         }
     }
 
-    public static <T> T jsonToObjectHashMap(String json, Class<?> keyType, Class<?> valueType) {
+    public static <T> T jsonToObjectHashMap(String json, Class<?> keyType, Class<?> valueType) throws IllegalParseException {
         JavaType javaType = mapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType);
         try {
             return mapper.readValue(json, javaType);

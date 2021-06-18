@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class MyInterceptor implements HandlerInterceptor {
 
-    private final static Logger log = LoggerFactory.getLogger(MyInterceptor.class);
+    private static final Logger log = LoggerFactory.getLogger(MyInterceptor.class);
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

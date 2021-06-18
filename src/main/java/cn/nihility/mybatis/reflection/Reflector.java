@@ -12,7 +12,7 @@ import java.util.*;
 
 public class Reflector {
 
-    private final static Logger log = LoggerFactory.getLogger(Reflector.class);
+    private static final Logger log = LoggerFactory.getLogger(Reflector.class);
 
     /**
      * 反射对象类型

@@ -51,7 +51,7 @@ public class UnifiedExceptionHandler {
     /**
      * 生产环境
      */
-    private final static String ENV_PROD = "prod";
+    private static final String ENV_PROD = "prod";
 
     private final UnifiedMessageSource unifiedMessageSource;
     /**

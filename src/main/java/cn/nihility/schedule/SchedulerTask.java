@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SchedulerTask {
 
-    private final static Logger log = LoggerFactory.getLogger(SchedulerTask.class);
+    private static final Logger log = LoggerFactory.getLogger(SchedulerTask.class);
 
     @Async("threadPoolTaskExecutor1")
     @Scheduled(cron = "0 0/1 * * * ?")

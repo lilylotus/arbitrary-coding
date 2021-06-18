@@ -14,7 +14,7 @@ import java.util.Collection;
 
 public class HttpServletRequestStringBodyWrapper extends HttpServletRequestWrapper {
 
-    private final static Logger log = LoggerFactory.getLogger(HttpServletRequestStringBodyWrapper.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpServletRequestStringBodyWrapper.class);
 
     private byte[] requestBodyByteData;
     private String requestBodyString;

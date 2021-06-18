@@ -12,7 +12,7 @@ import java.io.InputStream;
 
 public class ByteArrayResponseExtractor extends AbstractDownloadProgressMonitorResponseExtractor<byte[]> {
 
-    private final static Logger log = LoggerFactory.getLogger(ByteArrayResponseExtractor.class);
+    private static final Logger log = LoggerFactory.getLogger(ByteArrayResponseExtractor.class);
 
     /**
      * 保存已经下载的字节数

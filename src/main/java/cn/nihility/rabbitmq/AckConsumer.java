@@ -8,7 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 public class AckConsumer {
 
-    private final static String QUEUE_NAME = "durable-queue";
+    private static final String QUEUE_NAME = "durable-queue";
 
     public static void main(String[] args) throws IOException, TimeoutException {
         // 创建一个连接

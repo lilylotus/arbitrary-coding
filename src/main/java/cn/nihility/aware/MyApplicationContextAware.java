@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class MyApplicationContextAware implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
-    private final static Logger log = LoggerFactory.getLogger(MyApplicationContextAware.class);
+    private static final Logger log = LoggerFactory.getLogger(MyApplicationContextAware.class);
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

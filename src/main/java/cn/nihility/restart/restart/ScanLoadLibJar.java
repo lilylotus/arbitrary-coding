@@ -16,7 +16,7 @@ import java.util.*;
 
 public class ScanLoadLibJar {
 
-    private final static Logger log = LoggerFactory.getLogger(ScanLoadLibJar.class);
+    private static final Logger log = LoggerFactory.getLogger(ScanLoadLibJar.class);
 
     private final Set<URL> libJarUrlSet = new LinkedHashSet<>(64);
     private final Set<String> libJarLocationSet = new LinkedHashSet<>(64);

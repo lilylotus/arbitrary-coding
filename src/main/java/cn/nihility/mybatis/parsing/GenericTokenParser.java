@@ -17,7 +17,7 @@ package cn.nihility.mybatis.parsing;
 
 public class GenericTokenParser {
 
-    private final static String HANDLER_TOKEN = "param";
+    private static final String HANDLER_TOKEN = "param";
     private final String openToken;
     private final String closeToken;
 

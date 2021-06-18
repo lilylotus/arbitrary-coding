@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PublishServiceImpl implements PublishService {
-    private final static Logger log = LoggerFactory.getLogger(PublishServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PublishServiceImpl.class);
 
     private final StringRedisTemplate stringRedisTemplate;
 

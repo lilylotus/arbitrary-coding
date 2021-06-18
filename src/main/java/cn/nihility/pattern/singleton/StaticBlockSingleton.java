@@ -5,7 +5,7 @@ package cn.nihility.pattern.singleton;
  */
 public class StaticBlockSingleton {
 
-    private static final StaticBlockSingleton instance;
+    private static static finalBlockSingleton instance;
 
     private StaticBlockSingleton() {}
 

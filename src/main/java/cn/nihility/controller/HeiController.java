@@ -23,7 +23,7 @@ import java.util.Set;
 public class HeiController {
 
     private static final Map<String, Object> RESULT_DATA;
-    private final static Logger log = LoggerFactory.getLogger(HeiController.class);
+    private static final Logger log = LoggerFactory.getLogger(HeiController.class);
 
     static {
         RESULT_DATA = new HashMap<>();

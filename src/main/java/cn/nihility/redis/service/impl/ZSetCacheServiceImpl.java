@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class ZSetCacheServiceImpl implements ZSetCacheService {
-    private final static Logger log = LoggerFactory.getLogger(ZSetCacheServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ZSetCacheServiceImpl.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
 

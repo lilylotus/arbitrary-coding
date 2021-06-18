@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class NioServer {
 
-    private final static Logger log = LoggerFactory.getLogger(NioServer.class);
+    private static final Logger log = LoggerFactory.getLogger(NioServer.class);
     private static ServerSocketChannel serverSocketChannel;
     private static Selector selector;
 

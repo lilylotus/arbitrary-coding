@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class SimpleDownloadProgressPrinter implements DownloadProgressPrinter {
 
-    private final static Logger log = LoggerFactory.getLogger(SimpleDownloadProgressPrinter.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleDownloadProgressPrinter.class);
 
     private long contentLength;
     private long alreadyDownloadLength;

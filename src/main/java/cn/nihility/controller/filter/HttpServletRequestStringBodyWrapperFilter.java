@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class HttpServletRequestStringBodyWrapperFilter implements Filter {
 
-    private final static Logger log = LoggerFactory.getLogger(HttpServletRequestStringBodyWrapperFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpServletRequestStringBodyWrapperFilter.class);
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

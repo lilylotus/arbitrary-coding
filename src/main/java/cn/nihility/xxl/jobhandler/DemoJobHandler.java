@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DemoJobHandler {
 
-	private final static Logger logger = LoggerFactory.getLogger(DemoJobHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(DemoJobHandler.class);
 
     /**
      * 1、简单任务示例（Bean模式）

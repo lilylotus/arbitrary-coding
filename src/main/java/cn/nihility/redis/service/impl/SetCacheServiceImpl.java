@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class SetCacheServiceImpl implements SetCacheService {
-    private final static Logger log = LoggerFactory.getLogger(SetCacheServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SetCacheServiceImpl.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
 
