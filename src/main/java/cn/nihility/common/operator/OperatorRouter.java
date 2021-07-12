@@ -1,6 +1,5 @@
 package cn.nihility.common.operator;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.nihility.common.constant.enums.CommonResponseEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +11,6 @@ import java.util.Map;
  * <pre>
  *  {@link Operator} 路由器
  * </pre>
- *
- * @date 2019-09-09
  */
 public abstract class OperatorRouter<K, O extends Operator> {
 
@@ -26,6 +23,7 @@ public abstract class OperatorRouter<K, O extends Operator> {
 
     /**
      * 根据 route key 路由到目标{@link Operator}
+     *
      * @param routeKey
      * @return
      */
@@ -39,6 +37,7 @@ public abstract class OperatorRouter<K, O extends Operator> {
 
     /**
      * 处理路由结果为空的情况. {@link #route(Object)}
+     *
      * @param routeKey
      */
     protected void handleBadRoute(K routeKey) {
@@ -48,6 +47,7 @@ public abstract class OperatorRouter<K, O extends Operator> {
 
     /**
      * 返回{@link Operator}的子类的{@link Class}
+     *
      * @return {@link O#getClass()}
      */
     protected abstract Class<O> getOperatorClass();
@@ -58,10 +58,11 @@ public abstract class OperatorRouter<K, O extends Operator> {
      *
      * @param operator
      */
-    protected void checkOperator(O operator) {}
+    protected void checkOperator(O operator) {
+    }
 
     void setOperatorMap(Map<K, O> operatorMap) {
-        this.operatorMap = CollUtil.isEmpty(operatorMap) ? Collections.emptyMap() : operatorMap;
+        this.operatorMap = (null == operatorMap || operatorMap.isEmpty()) ? Collections.emptyMap() : operatorMap;
     }
 
 }

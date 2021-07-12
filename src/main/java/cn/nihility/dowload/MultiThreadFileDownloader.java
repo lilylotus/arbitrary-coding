@@ -31,11 +31,7 @@ public class MultiThreadFileDownloader extends AbstractDownloader {
         int threadSize = Runtime.getRuntime().availableProcessors();
         log.info("System available processors [{}]", threadSize);
 
-        if (threadNum < threadSize) {
-            this.threadNum = threadNum;
-        } else {
-            this.threadNum = threadSize;
-        }
+        this.threadNum = Math.min(threadNum, threadSize);
 
         // 多线程下载进度打印
         final MultiThreadDownloadProgressPrinter downloadProgressPrinter = new MultiThreadDownloadProgressPrinter(threadNum);

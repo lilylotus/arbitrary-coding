@@ -1,7 +1,7 @@
 package cn.nihility.util;
 
-import cn.hutool.core.util.StrUtil;
 import cn.nihility.common.constant.enums.CommonResponseEnum;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -634,7 +634,7 @@ public class TimeUtil {
      * @param nullable 日期字符串为空时, 是否返回null. 若为false, 当日期字符串为空时, 直接抛异常. 反之, 返回 null.
      */
     private static String checkNotEmpty(String time, boolean nullable) {
-        if (StrUtil.isNotBlank(time)) {
+        if (StringUtils.isNotBlank(time)) {
             return time;
         }
 
@@ -824,7 +824,7 @@ public class TimeUtil {
      */
     public static String formatDayOfWeek(int dayOfWeek, String prefix) {
         String tmp = formatDayOfWeek(dayOfWeek);
-        if (StrUtil.isBlank(prefix)) {
+        if (StringUtils.isBlank(prefix)) {
             return tmp;
         }
         return prefix + tmp.substring(1);

@@ -1,6 +1,5 @@
 package cn.nihility.util;
 
-import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +124,7 @@ public class WebUtil extends org.springframework.web.util.WebUtils {
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType(contentType);
 		try (PrintWriter out = response.getWriter()) {
-			out.append(JSONUtil.toJsonStr(result));
+			out.append(JacksonUtil.objectToJson(result));
 		}
 	}
 

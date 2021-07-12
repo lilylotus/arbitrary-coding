@@ -1,8 +1,8 @@
 package cn.nihility.common.exception.assertion;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.nihility.common.exception.BaseException;
 import cn.nihility.common.exception.WrapMessageException;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -61,7 +61,7 @@ public interface Assert {
      * @return
      */
     default BaseException newExceptionWithMsg(String errMsg, Throwable t, Object... args) {
-        if (ArrayUtil.isNotEmpty(args)) {
+        if (ArrayUtils.isNotEmpty(args)) {
             errMsg = MessageFormat.format(errMsg, args);
         }
 

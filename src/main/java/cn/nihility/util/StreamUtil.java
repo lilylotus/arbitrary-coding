@@ -1,7 +1,5 @@
 package cn.nihility.util;
 
-import cn.hutool.core.collection.CollUtil;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -28,7 +26,7 @@ public class StreamUtil {
      * @return Map<K, T>
      */
     public static <K, T> Map<K, T> toMap(Collection<T> coll, Function<? super T, ? extends K> keyMapper) {
-        if (CollUtil.isEmpty(coll)) {
+        if (coll == null || coll.isEmpty()) {
             return Collections.emptyMap();
         }
         return coll.stream().collect(Collectors.toMap(keyMapper, Function.identity()));
