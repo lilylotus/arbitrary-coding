@@ -1,0 +1,45 @@
+spring:
+  shardingsphere:
+    props:
+      sql:
+        show: true
+    datasource:
+      # 当前存在数据源的名称
+      names: ds0,ds1
+      ds0:
+        username: root
+        password: mysql
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/sharding1?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      ds1:
+        username: root
+        password: mysql
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/sharding2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    sharding:
+      # 默认的数据库拆分策略
+#      default-database-strategy:
+#        inline:
+#          algorithm-expression: ds$->{id % 2}
+#          sharding-column: id
+      tables:
+        flower:
+          # 存在的数据源和节点
+          actual-data-nodes: ds$->{0..1}.flower$->{1..2}
+          # 依据某个字段分片的策略
+          key-generator:
+            column: id
+            # 雪花算法
+            type: SNOWFLAKE
+          # 表分片策略
+          table-strategy:
+            inline:
+              algorithm-expression: flower$->{id % 2 + 1}
+              sharding-column: id
+          # 数据库分片
+          databaseStrategy:
+            inline:
+              algorithm-expression: ds$->{id % 2}
+              shardingColumn: id

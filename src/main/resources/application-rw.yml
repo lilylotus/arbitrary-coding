@@ -1,0 +1,25 @@
+spring:
+  shardingsphere:
+    props:
+      sql:
+        show: true
+    datasource:
+      # 当前存在数据源的名称
+      names: ds0,ds1
+      ds0:
+        username: root
+        password: mysql
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/sharding1?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      ds1:
+        username: root
+        password: mysql
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/sharding2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    masterslave:
+      name: ms
+      load-balance-algorithm-type: round_robin
+      master-data-source-name: ds0
+      slave-data-source-names: ds1

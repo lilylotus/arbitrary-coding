@@ -1,7 +1,10 @@
 package cn.nihility.common.config;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -9,10 +12,12 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,7 +43,18 @@ public class JacksonConfiguration {
             builder.deserializers(new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)));
             builder.serializers(new LocalTimeSerializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
             builder.deserializers(new LocalTimeDeserializer(DateTimeFormatter.ofPattern(TIME_PATTERN)));
-            //builder.modules(javaTimeModule);
+
+            // 把空字符串 ("") 值转为 null 值 -> 针对的是 POST 的请求
+            builder.deserializerByType(String.class, new StdScalarDeserializer<String>(String.class) {
+                private static final long serialVersionUID = -7988573349017049031L;
+
+                @Override
+                public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
+                    // 重点在这儿:如果为空白则返回null
+                    final String value = jsonParser.getValueAsString();
+                    return StringUtils.isBlank(value) ? null : value;
+                }
+            });
         };
     }
 

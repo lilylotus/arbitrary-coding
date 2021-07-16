@@ -27,6 +27,7 @@ ext {
 	springVersion = '5.1.17.RELEASE'
 	junitVersion = '4.12'
 	log4j2Version = '2.13.2'
+	set('shardingsphereVersion', '4.1.1')
 }
 
 ext['tomcatEmbedVersion'] = '9.0.39'
@@ -105,10 +106,21 @@ dependencies {
 	/* jwt token */
 	implementation 'com.auth0:java-jwt:3.10.3'
 
+	// sharding jdbc
+	//implementation 'org.apache.shardingsphere:sharding-core-common:4.1.1'
+	//implementation "org.apache.shardingsphere:sharding-jdbc-spring-boot-starter:${shardingsphereVersion}"
+	// 使用XA事务时，需要引入此模块
+	//implementation "org.apache.shardingsphere:sharding-transaction-xa-core:${shardingsphereVersion}"
+	// 使用BASE事务时，需要引入此模块
+	//implementation "org.apache.shardingsphere:sharding-transaction-base-seata-at:${shardingsphereVersion}"
+	//implementation 'mysql:mysql-connector-java:8.0.21'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
 }
 
 test {

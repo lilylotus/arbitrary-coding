@@ -1,0 +1,32 @@
+spring:
+  shardingsphere:
+    props:
+      sql:
+        show: true
+    datasource:
+      names: ds0,ds1
+      ds0:
+        username: root
+        password: mysql
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/sharding1?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      ds1:
+        username: root
+        password: mysql
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/sharding2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+
+    sharding:
+      tables:
+        flower:
+          actualDataNodes: ds0.flower4
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+        tree:
+          actualDataNodes: ds1.flower6
+          key-generator:
+            column: id
+            type: SNOWFLAKE
