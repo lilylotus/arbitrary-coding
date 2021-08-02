@@ -3,6 +3,7 @@ package cn.nihility.http;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -132,10 +133,12 @@ public class ApacheHttpClientConfiguration {
     }
 
     public static CloseableHttpClient createHttpClient(boolean disableSslValidation) {
-        HttpClientBuilder builder = HttpClientBuilder.create();
-        HttpClientBuilder httpClientFactory = builder.disableContentCompression()
-                .disableCookieManagement()
-                .useSystemProperties();
+        // HttpClientBuilder builder = HttpClientBuilder.create();
+        // disableContentCompression() 关闭压缩
+        // disableCookieManagement() 关闭 Cookies 管理
+        HttpClientBuilder httpClientFactory = HttpClientBuilder.create()
+            .disableCookieManagement()
+            .useSystemProperties();
 
         RequestConfig defaultRequestConfig = RequestConfig.custom()
                 .setConnectTimeout(DEFAULT_CONNECT_TIMEOUT)
@@ -145,6 +148,27 @@ public class ApacheHttpClientConfiguration {
         return httpClientFactory.setDefaultRequestConfig(defaultRequestConfig)
                 .setConnectionManager(newConnectionManager(disableSslValidation))
                 .build();
+    }
+
+    public static CloseableHttpClient createHttpClient(boolean disableSslValidation, CookieStore cookieStore) {
+        // HttpClientBuilder builder = HttpClientBuilder.create();
+        HttpClientBuilder httpClientFactory = HttpClientBuilder.create().useSystemProperties();
+
+        if (null == cookieStore) {
+            // 关闭 Cookies 管理
+            httpClientFactory.disableCookieManagement();
+        } else {
+            httpClientFactory.setDefaultCookieStore(cookieStore);
+        }
+
+        RequestConfig defaultRequestConfig = RequestConfig.custom()
+            .setConnectTimeout(DEFAULT_CONNECT_TIMEOUT)
+            .setRedirectsEnabled(DEFAULT_FOLLOW_REDIRECTS)
+            .build();
+
+        return httpClientFactory.setDefaultRequestConfig(defaultRequestConfig)
+            .setConnectionManager(newConnectionManager(disableSslValidation))
+            .build();
     }
 
     public static CloseableHttpClient createDefaultHttpClient() {
