@@ -5,15 +5,16 @@ package cn.nihility.pattern.singleton;
  */
 public class StaticBlockSingleton {
 
-    private static static finalBlockSingleton instance;
+    private static final StaticBlockSingleton instance;
 
-    private StaticBlockSingleton() {}
+    private StaticBlockSingleton() {
+    }
 
     //static block initialization for exception handling
-    static{
-        try{
+    static {
+        try {
             instance = new StaticBlockSingleton();
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Exception occurred in creating singleton instance");
         }
     }
