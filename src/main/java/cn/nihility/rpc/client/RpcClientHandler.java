@@ -4,7 +4,7 @@ package cn.nihility.rpc.client;
 import cn.nihility.rpc.common.Beat;
 import cn.nihility.rpc.common.codec.RpcRequest;
 import cn.nihility.rpc.common.codec.RpcResponse;
-import cn.nihility.rpc.common.conn.ConnectionManager;
+import cn.nihility.rpc.client.conn.ConnectionManager;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleStateEvent;

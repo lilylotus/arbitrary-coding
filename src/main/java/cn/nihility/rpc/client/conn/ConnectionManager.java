@@ -1,4 +1,4 @@
-package cn.nihility.rpc.common.conn;
+package cn.nihility.rpc.client.conn;
 
 import cn.nihility.rpc.client.RpcClientHandler;
 import cn.nihility.rpc.client.RpcClientInitializer;
@@ -43,6 +43,7 @@ public class ConnectionManager {
         });
 
     private final Map<RpcProtocol, RpcClientHandler> connectedServerNodes = new ConcurrentHashMap<>();
+    private final Map<RpcProtocol, NioEventLoopGroup> connectedEventLoopGroup = new ConcurrentHashMap<>();
     private CopyOnWriteArraySet<RpcProtocol> rpcProtocolSet = new CopyOnWriteArraySet<>();
     private ReentrantLock lock = new ReentrantLock();
     private Condition connected = lock.newCondition();
@@ -85,6 +86,7 @@ public class ConnectionManager {
                         rpcProtocol.setServiceInfoList(serviceInfoList);
                         connectedServerNodes.put(rpcProtocol, handler);
                         signalAvailableHandler();
+                        connectedEventLoopGroup.put(rpcProtocol, eventLoopGroup);
                     } else {
                         log.info("Can not connect to server [{}]", remotePeer);
                     }
@@ -179,6 +181,10 @@ public class ConnectionManager {
     public void removeHandler(RpcProtocol rpcProtocol) {
         rpcProtocolSet.remove(rpcProtocol);
         connectedServerNodes.remove(rpcProtocol);
+        NioEventLoopGroup evt = connectedEventLoopGroup.remove(rpcProtocol);
+        if (null != evt) {
+            evt.shutdownGracefully();
+        }
         log.info("Remove one connection, host: [{}], port: [{}]", rpcProtocol.getHost(), rpcProtocol.getPort());
         if (isRunning) {
             connectServerNode(rpcProtocol);
@@ -188,6 +194,11 @@ public class ConnectionManager {
     public void stop() {
         isRunning = false;
         signalAvailableHandler();
+        if (!connectedEventLoopGroup.isEmpty()) {
+            for (NioEventLoopGroup evt : connectedEventLoopGroup.values()) {
+                evt.shutdownGracefully();
+            }
+        }
         threadPoolExecutor.shutdown();
         ThreadPoolUtil.shutdown();
     }

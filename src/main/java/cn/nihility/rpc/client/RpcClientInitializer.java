@@ -21,7 +21,7 @@ public class RpcClientInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel ch) throws Exception {
         final Serializer serializer = new JacksonSerializer();
         final ChannelPipeline pipeline = ch.pipeline();
-        pipeline.addLast(new IdleStateHandler(0, 0, Beat.BEAT_TIMEOUT, TimeUnit.SECONDS));
+        pipeline.addLast(new IdleStateHandler(0, 0, Beat.BEAT_INTERVAL, TimeUnit.SECONDS));
         pipeline.addLast(new LengthFieldBasedFrameDecoder(65535, 0, 4, 0, 0));
         pipeline.addLast(new RpcEncoder(RpcRequest.class, serializer));
         pipeline.addLast(new RpcDecoder(RpcResponse.class, serializer));

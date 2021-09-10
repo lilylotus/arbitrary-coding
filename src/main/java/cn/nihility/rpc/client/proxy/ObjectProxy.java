@@ -3,7 +3,7 @@ package cn.nihility.rpc.client.proxy;
 import cn.nihility.rpc.client.RpcClientHandler;
 import cn.nihility.rpc.client.RpcFuture;
 import cn.nihility.rpc.common.codec.RpcRequest;
-import cn.nihility.rpc.common.conn.ConnectionManager;
+import cn.nihility.rpc.client.conn.ConnectionManager;
 import cn.nihility.rpc.common.util.RpcServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

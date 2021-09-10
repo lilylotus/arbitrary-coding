@@ -2,7 +2,7 @@ package cn.nihility.rpc.client;
 
 import cn.nihility.rpc.client.proxy.ObjectProxy;
 import cn.nihility.rpc.common.Beat;
-import cn.nihility.rpc.common.conn.ConnectionManager;
+import cn.nihility.rpc.client.conn.ConnectionManager;
 import cn.nihility.rpc.common.util.ThreadPoolUtil;
 import cn.nihility.rpc.service.Arithmetic;
 import cn.nihility.rpc.service.IArithmetic;
