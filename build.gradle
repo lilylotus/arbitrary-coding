@@ -55,6 +55,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'org.springframework.boot:spring-boot-loader'
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+	/* apache commons */
 	implementation 'org.apache.commons:commons-lang3:3.10'
 	implementation 'commons-codec:commons-codec:1.14'
 	implementation 'commons-io:commons-io:2.7'
@@ -105,6 +107,7 @@ dependencies {
 	implementation 'cn.hutool:hutool-all:5.4.4'
 	/* jwt token */
 	implementation 'com.auth0:java-jwt:3.10.3'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
 	// sharding jdbc
 	//implementation 'org.apache.shardingsphere:sharding-core-common:4.1.1'
