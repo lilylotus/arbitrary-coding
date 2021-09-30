@@ -104,10 +104,18 @@ dependencies {
 	implementation fileTree(dir: 'lib', includes: ["*.jar"])
 
 	// other tools
-	implementation 'cn.hutool:hutool-all:5.4.4'
+	/*implementation 'cn.hutool:hutool-all:5.4.4'*/
 	/* jwt token */
 	implementation 'com.auth0:java-jwt:3.10.3'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+	/* qr code */
+	implementation 'com.google.zxing:core:3.3.3'
+	implementation 'com.google.zxing:javase:3.3.3'
+
+	/* POI */
+	implementation 'org.apache.poi:poi:4.1.2'
+	implementation 'org.apache.poi:poi-ooxml:4.1.2'
 
 	// sharding jdbc
 	//implementation 'org.apache.shardingsphere:sharding-core-common:4.1.1'
