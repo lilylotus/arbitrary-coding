@@ -24,4 +24,5 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
         super.onMessage(message, pattern);
         log.info("Redis Key Expired [{}]", message);
     }
+
 }
