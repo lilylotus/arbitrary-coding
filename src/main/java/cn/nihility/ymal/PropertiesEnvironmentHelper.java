@@ -6,18 +6,16 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.ClassUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class PropertiesEnvironmentHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(PropertiesEnvironmentHelper.class);
 
-    private final List<Map<String, Object>> propertySources;
+    private final PropertySources propertySources;
 
-    public PropertiesEnvironmentHelper(List<Map<String, Object>> propertySources) {
+    public PropertiesEnvironmentHelper(PropertySources propertySources) {
         this.propertySources = propertySources;
     }
 
@@ -48,14 +46,15 @@ public class PropertiesEnvironmentHelper {
 
 
     public <T> T getProperty(final String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+
         if (null != propertySources) {
-            for (Map<String, Object> propertySource : propertySources) {
-                Object value = propertySource.get(key);
+            for (PropertySource source : propertySources) {
+                Object value = source.getProperty(key);
                 if (null != value) {
                     if (resolveNestedPlaceholders && value instanceof String) {
                         value = resolveNestedPlaceholders((String) value);
                     }
-                    logger.info("property [{}]:[{}]", key, value);
+                    logger.info("property [{}]:[{}] at [{}]", key, value, source.getName());
                     return convertValueIfNecessary(value, targetValueType);
                 }
             }
@@ -104,12 +103,12 @@ public class PropertiesEnvironmentHelper {
         final Map<String, Object> s2 = new HashMap<>();
         final Map<String, Object> s3 = new HashMap<>();
 
-        List<Map<String, Object>> sources = new ArrayList<>();
-        sources.add(systemEnv);
-        sources.add(systemProperties);
-        sources.add(s1);
-        sources.add(s2);
-        sources.add(s3);
+        final PropertySources sources = new PropertySources();
+        sources.addLast(new PropertySource("systemEnv", systemEnv));
+        sources.addLast(new PropertySource("systemProperties", systemProperties));
+        sources.addLast(new PropertySource("s1", s1));
+        sources.addLast(new PropertySource("s2", s2));
+        sources.addLast(new PropertySource("s3", s3));
 
         s1.put("s1.a.b.c", "${s3.${s2.e.f}.x.y.z}");
         s2.put("s2.e.f", "ok");
