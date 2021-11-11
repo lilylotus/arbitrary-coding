@@ -1,6 +1,5 @@
 package cn.nihility.util;
 
-import cn.nihility.ymal.PropertyTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
@@ -10,6 +9,7 @@ import org.yaml.snakeyaml.reader.UnicodeReader;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -94,7 +94,7 @@ public class YamlUtil {
         if (null == property || "".equals(property.trim()) || yamlData == null) {
             return null;
         }
-        cn.nihility.ymal.PropertyTokenizer tokenizer = new cn.nihility.ymal.PropertyTokenizer(property);
+        PropertyTokenizer tokenizer = new PropertyTokenizer(property);
         if (tokenizer.hasNext()) {
             @SuppressWarnings("unchecked")
             Map<String, Object> curData = (Map<String, Object>) yamlData.get(tokenizer.getIndexedName());
@@ -115,7 +115,7 @@ public class YamlUtil {
         if (null == property || "".equals(property.trim()) || yamlData == null) {
             return false;
         }
-        cn.nihility.ymal.PropertyTokenizer tokenizer = new cn.nihility.ymal.PropertyTokenizer(property);
+        PropertyTokenizer tokenizer = new PropertyTokenizer(property);
         String curKey = tokenizer.getIndexedName();
         if (tokenizer.hasNext()) {
             @SuppressWarnings("unchecked")
@@ -143,7 +143,7 @@ public class YamlUtil {
         if (null == property || "".equals(property.trim()) || yamlData == null) {
             return;
         }
-        cn.nihility.ymal.PropertyTokenizer tokenizer = new cn.nihility.ymal.PropertyTokenizer(property);
+        PropertyTokenizer tokenizer = new PropertyTokenizer(property);
         String curKey = tokenizer.getIndexedName();
         if (tokenizer.hasNext()) {
             if (yamlData.containsKey(curKey)) {
@@ -302,7 +302,7 @@ public class YamlUtil {
         if (null == property || "".equals(property.trim()) || yamlData == null) {
             return;
         }
-        cn.nihility.ymal.PropertyTokenizer tokenizer = new PropertyTokenizer(property);
+        PropertyTokenizer tokenizer = new PropertyTokenizer(property);
         String curKey = tokenizer.getIndexedName();
         if (tokenizer.hasNext()) {
             if (yamlData.containsKey(curKey)) {
@@ -347,6 +347,77 @@ public class YamlUtil {
         Yaml yaml = new Yaml(OPTIONS);
         yaml.dump(obj, sw);
         return sw.toString();
+    }
+
+    static class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+        private String name;
+        private final String indexedName;
+        private String index;
+        private final String children;
+
+        public PropertyTokenizer(String fullname) {
+            // richType.richField 或者 List -> list[0] 或者 map -> map[key]
+            // generateLeaderNodeRule[.*[部]$]: 部领导
+            int delim = fullname.indexOf('.');
+            int squareDelim = fullname.indexOf("[");
+            if (squareDelim > -1 && squareDelim < delim) {
+                if (squareDelim == 0) {
+                    name = fullname;
+                    children = null;
+                } else {
+                    index = fullname.substring(squareDelim + 1, fullname.length() - 1);
+                    name = fullname.substring(0, squareDelim);
+                    children = null;
+                }
+                indexedName = name;
+            } else {
+                if (delim > -1) {
+                    name = fullname.substring(0, delim);
+                    children = fullname.substring(delim + 1);
+                } else {
+                    name = fullname;
+                    children = null;
+                }
+                indexedName = name;
+                delim = name.indexOf('[');
+                if (delim > -1) {
+                    // list[0] : map[key]
+                    index = name.substring(delim + 1, name.length() - 1);
+                    name = name.substring(0, delim);
+                }
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getIndex() {
+            return index;
+        }
+
+        public String getIndexedName() {
+            return indexedName;
+        }
+
+        public String getChildren() {
+            return children;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return children != null;
+        }
+
+        @Override
+        public PropertyTokenizer next() {
+            return new PropertyTokenizer(children);
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Remove is not supported, as it has no meaning in the context of properties.");
+        }
     }
 
 }
