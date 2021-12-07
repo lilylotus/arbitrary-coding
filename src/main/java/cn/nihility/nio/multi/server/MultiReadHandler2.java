@@ -1,7 +1,5 @@
 package cn.nihility.nio.multi.server;
 
-import cn.nihility.boot.io.multi.ReactorThreadPool;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -36,9 +34,9 @@ public class MultiReadHandler2 implements Runnable {
                     System.out.println(String.format("收到来自 %s 的消息: [%s]",
                             socketChannel.getRemoteAddress(), readMessage));
 
-                    ReactorThreadPool.submit(new MultiWriteHandler2(selector, selectionKey, readMessage));
-
-                    //socketChannel.register(selector, SelectionKey.OP_WRITE, readMessage);
+                    // 切换感兴趣的事件
+                    selectionKey.attach(readMessage);
+                    selectionKey.interestOps(SelectionKey.OP_WRITE);
                 } else if (len < 0) {
                     System.out.println("读取消息 为空 [" + len + "] 连接关闭");
                     selectionKey.cancel();

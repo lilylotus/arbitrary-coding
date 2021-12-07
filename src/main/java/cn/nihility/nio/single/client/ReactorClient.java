@@ -14,6 +14,7 @@ public class ReactorClient implements Runnable {
 
     private Selector selector;
     private SocketChannel socketChannel;
+    private volatile boolean running = true;
 
     public ReactorClient(String ip, int port) {
         try {
@@ -33,9 +34,10 @@ public class ReactorClient implements Runnable {
     @Override
     public void run() {
         try {
-            while (!Thread.interrupted()) {
+            while (socketChannel.isOpen() && !Thread.interrupted()) {
                 selector.select(); //就绪事件到达之前，阻塞
-                Set<SelectionKey> selected = selector.selectedKeys(); //拿到本次select获取的就绪事件
+                // 拿到本次select获取的就绪事件
+                Set<SelectionKey> selected = selector.selectedKeys();
                 for (SelectionKey selectionKey : selected) {
                     //这里进行任务分发
                     dispatch(selectionKey);
@@ -46,6 +48,20 @@ public class ReactorClient implements Runnable {
             e.printStackTrace();
         }
         System.out.println("ReactorClient 线程关闭");
+        if (socketChannel != null) {
+            try {
+                socketChannel.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (selector != null) {
+            try {
+                selector.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     void dispatch(SelectionKey k) {

@@ -36,7 +36,7 @@ public class MultiReactorServer implements Runnable {
     public void run() {
         try {
             while (running && !Thread.interrupted()) {
-                int selectCount = selector.select();//就绪事件到达之前，阻塞
+                int selectCount = selector.select(500L);//就绪事件到达之前，阻塞
                 if (selectCount > 0) {
                     //拿到本次 select 获取的就绪事件
                     Set<SelectionKey> selectionKeys = selector.selectedKeys();
@@ -100,22 +100,24 @@ public class MultiReactorServer implements Runnable {
 
     private void dispatch2(SelectionKey key) {
         try {
-            if (key.isValid() && key.isAcceptable()) {
-                System.out.println("处理 Acceptable 事件");
-                //ReactorThreadPool.submit(new MultiAcceptor(serverSocketChannel, selector));
-                new MultiAcceptor2(selector, key).run();
-            }
-            if (key.isValid() && key.isWritable()) {
-//                System.out.println("处理 Writable 事件");
-                ReactorThreadPool.submit(new MultiWriteHandler2(selector, key));
-//                new MultiWriteHandler2(selector, key).run();
-//                new Thread(new MultiWriteHandler2(selector, key)).start();
-            }
-            if (key.isValid() && key.isReadable()) {
-                System.out.println("处理 Readable 事件");
-                ReactorThreadPool.submit(new MultiReadHandler2(selector, key));
-//                new MultiReadHandler2(selector, key).run();
-//                new Thread(new MultiReadHandler2(selector, key)).start();
+            if (key.isValid()) {
+                if (key.isAcceptable()) {
+                    System.out.println("处理 Acceptable 事件");
+//                    new MultiAcceptor2(selector, key).run();
+                    new MultiAcceptor(serverSocketChannel, selector).run();
+                }
+                if (key.isWritable()) {
+                    System.out.println("处理 Writable 事件");
+                    // 改变感兴趣的事件，防止重复处理
+                    key.interestOps(0);
+                    ReactorThreadPool.submit(new MultiWriteHandler2(selector, key));
+                }
+                if (key.isReadable()) {
+                    System.out.println("处理 Readable 事件");
+                    // 改变感兴趣的事件，防止重复处理
+                    key.interestOps(0);
+                    ReactorThreadPool.submit(new MultiReadHandler2(selector, key));
+                }
             }
         } catch (Exception e) {
             key.cancel();
