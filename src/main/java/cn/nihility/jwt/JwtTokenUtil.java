@@ -38,6 +38,7 @@ public class JwtTokenUtil {
     public static String generateJwtToken(String subject, long ttlMillis, Map<String, Object> claims) {
         final JwtBuilder jwtBuilder = Jwts.builder()
             .setSubject(subject) // 主题
+            .setId("")
             .setIssuer("jwt") // 签发者
             .setIssuedAt(new Date()) // 签发时间
             .signWith(SignatureAlgorithm.HS256, generalKey());
