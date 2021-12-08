@@ -1,4 +1,4 @@
-package cn.nihility.nio.multi.server;
+package cn.nihility.nio.multi;
 
 import java.io.IOException;
 

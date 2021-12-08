@@ -70,7 +70,7 @@ public class ReactorClientHandler implements Runnable {
         if (selectionKey.isValid()) {
             int count = counter.incrementAndGet();
             if (count <= 10) {
-                final byte[] buffer = ("客户端发送的第 " + count + " 条消息").getBytes(StandardCharsets.UTF_8);
+                final byte[] buffer = ("客户端发送的第 " + hashCode() + ":" + count + " 条消息").getBytes(StandardCharsets.UTF_8);
 
                 sendBuffer.clear();
                 sendBuffer.put(buffer);

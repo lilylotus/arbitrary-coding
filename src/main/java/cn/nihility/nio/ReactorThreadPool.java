@@ -1,4 +1,4 @@
-package cn.nihility.nio.multi;
+package cn.nihility.nio;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;

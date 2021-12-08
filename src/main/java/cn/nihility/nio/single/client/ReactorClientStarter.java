@@ -6,6 +6,15 @@ public class ReactorClientStarter {
         System.out.println("开始");
         new Thread(new ReactorClient("127.0.0.1", 2333)).start();
         new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
+        new Thread(new ReactorClient("127.0.0.1", 2333)).start();
         System.out.println("结束");
     }
 

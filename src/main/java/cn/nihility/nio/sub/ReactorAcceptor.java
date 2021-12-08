@@ -1,4 +1,4 @@
-package cn.nihility.nio.multi.server;
+package cn.nihility.nio.sub;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -6,12 +6,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-public class MultiAcceptor2 implements Runnable {
+public class ReactorAcceptor implements Runnable {
 
     private final Selector selector;
     private final SelectionKey selectionKey;
 
-    MultiAcceptor2(Selector selector, SelectionKey selectionKey) {
+    ReactorAcceptor(Selector selector, SelectionKey selectionKey) {
         this.selector = selector;
         this.selectionKey = selectionKey;
     }
