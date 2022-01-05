@@ -29,7 +29,7 @@ public class WebSocketAnnotation {
     }
 
     @OnClose
-    public void OnClose(Session session, CloseReason closeReason) throws IOException {
+    public void onClose(Session session, CloseReason closeReason) throws IOException {
         log.info("session close id [{}], reason [{}]", session.getId(), closeReason);
         sendMessage("ready close session");
         if (session.isOpen()) {
@@ -45,7 +45,7 @@ public class WebSocketAnnotation {
     }
 
     @OnError
-    public void OnError(Session session, Throwable throwable) throws IOException {
+    public void onError(Session session, Throwable throwable) throws IOException {
         log.info("on error, session id [{}], error message [{}]", session.getId(), throwable.getMessage());
         sendMessage("encounter trouble:" + throwable.getMessage());
     }
