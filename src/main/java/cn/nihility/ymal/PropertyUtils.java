@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
-final public class PropertyUtils {
+public final class PropertyUtils {
 
     /**
      * Prefix for system property placeholders: "${".
@@ -30,14 +30,13 @@ final public class PropertyUtils {
     private static final Logger log = LoggerFactory.getLogger(PropertyUtils.class);
 
     public static Properties readProperties(File proFile) {
+        Properties properties = new Properties();
         try (final FileInputStream inputStream = new FileInputStream(proFile)) {
-            Properties properties = new Properties();
             properties.load(inputStream);
-            return properties;
         } catch (IOException e) {
             log.error("加载 properties 文件 [{}] 失败", proFile.getAbsolutePath(), e);
         }
-        return null;
+        return properties;
     }
 
     /**
@@ -52,7 +51,7 @@ final public class PropertyUtils {
      */
     public static String resolvePlaceholders(Map<String, Object> properties, String text) {
         if (text == null) {
-            return text;
+            return null;
         }
         return parseStringValue(properties, text, text, new HashSet<>());
     }
@@ -175,6 +174,11 @@ final public class PropertyUtils {
         String placeholder = holder.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
 
         System.out.println(placeholder);
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("e.f.g", "efg");
+        properties.put("a.b.efg.d", "abcdefg");
+        System.out.println(resolvePlaceholders(properties, holder));
     }
 
     private static boolean substringMatch(CharSequence str, int index,

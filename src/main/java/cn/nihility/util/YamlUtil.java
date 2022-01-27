@@ -3,6 +3,7 @@ package cn.nihility.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.reader.UnicodeReader;
 
@@ -30,6 +31,16 @@ public class YamlUtil {
         OPTIONS.setPrettyFlow(true);
         OPTIONS.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         OPTIONS.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
+    }
+
+    public static Yaml createYaml() {
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setAllowDuplicateKeys(false);
+        return new Yaml(loaderOptions);
+    }
+
+    public static Yaml createDumperYaml() {
+        return new Yaml(OPTIONS);
     }
 
     public static <T> T loadAs(String yamlPath, Class<T> clazz) {
