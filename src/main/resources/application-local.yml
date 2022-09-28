@@ -1,0 +1,32 @@
+quartz:
+  scheduler:
+    enable: false
+    threadCount: 10
+    jobs:
+      - serviceClass: com.init.springinit.schedule.service.QuartzTaskTest
+        beanName: quartzTaskTest
+        methodName: schedule
+        parameterTypes: ["java.lang.String"]
+        param: ["param1"]
+        cron: '0/10 * * * * ?'
+
+mq:
+  local:
+    enable: true
+    type: redis
+    senders:
+      - sendClass: com.init.springinit.mq.test.MqTestSenderService
+        sendBeanName: mqTestSenderService
+        sendMethod: send
+        sendParameterTypes: ["java.lang.String","java.lang.String","java.lang.String","java.lang.String","java.util.Map"]
+        sendArgs: ["exchange", "routingKey", "headers.action", "extensions.arg", "message"]
+        exchange: authn-exchange
+        routingKey: authn.lock.event
+    receivers:
+      - exchange: authn-exchange
+        routingKey: authn.lock.event
+        recClass: com.init.springinit.mq.test.MqTestReceiveService
+        recBeanName: mqTestReceiveService
+        recMethodName: receive
+        recParameterTypes: ["java.lang.String","java.lang.String","java.lang.String","java.lang.String","java.util.Map"]
+        recArgs: ["exchange", "routingKey", "headers.action", "extensions.arg", "message"]

@@ -64,10 +64,14 @@ dependencies {
 	/* spring boot redis 操作 */
 	implementation "org.springframework.boot:spring-boot-starter-data-redis"
 	/* spring-boot-starter-data-redis 依赖 commons-pool2 连接池 */
-	implementation 'org.apache.commons:commons-pool2:2.8.1'
+	implementation 'org.apache.commons:commons-pool2:2.11.1'
 	implementation 'redis.clients:jedis:2.9.1'
 	/* redis 分布式锁 */
 	implementation 'org.redisson:redisson:3.13.4'
+
+	// 定时任务
+	implementation('org.quartz-scheduler:quartz:2.3.2')
+	implementation("org.mybatis:mybatis:3.5.6")
 
 	implementation "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatEmbedVersion}"
 	implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatEmbedVersion}"
@@ -82,8 +86,8 @@ dependencies {
 	implementation "org.apache.logging.log4j:log4j-web:2.13.2"
 	/* 包含了 slf4j-api:1.7.25 */
 	implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.13.2"
-	/* log4j2 异步日志所需 */
-	implementation "com.lmax:disruptor:3.4.2"
+	/* log4j2 异步日志所需 - 内存队列 */
+	implementation("com.lmax:disruptor:3.4.4")
 
 	// xxl-job 任务调度
 	implementation 'com.xuxueli:xxl-job-core:2.2.0'
