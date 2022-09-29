@@ -1,10 +1,9 @@
 package cn.nihility.local.mq.config;
 
-import cn.nihility.local.mq.redis.RedisConfiguration;
 import cn.nihility.local.mq.service.IProxyMessageSendService;
 import cn.nihility.local.mq.service.impl.DisruptorMessageSendServiceImpl;
 import cn.nihility.local.mq.service.impl.RedisMessageSendServiceImpl;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +18,8 @@ import java.util.List;
  * @date 2022/09/27 11:10
  */
 @Configuration(proxyBeanMethods = false)
-@AutoConfigureAfter(RedisConfiguration.class)
 @EnableConfigurationProperties(MessageConfigurationProperties.class)
+@ConditionalOnProperty(prefix = MessageConfigurationProperties.PREFIX, name = "enable")
 public class LocalMessageQueueConfiguration {
 
     @Bean

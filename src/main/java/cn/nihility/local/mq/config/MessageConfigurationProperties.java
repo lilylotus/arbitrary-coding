@@ -17,8 +17,10 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@ConfigurationProperties(prefix = "mq.local")
+@ConfigurationProperties(prefix = MessageConfigurationProperties.PREFIX)
 public class MessageConfigurationProperties {
+
+    public static final String PREFIX = "mq.local";
 
     /**
      * 是否启动

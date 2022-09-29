@@ -1,20 +1,27 @@
 package cn.nihility.local.mq.aop;
 
+import cn.nihility.local.mq.config.MessageConfigurationProperties;
 import cn.nihility.local.mq.config.MessageReceiveProperties;
 import cn.nihility.local.mq.config.MessageSendProperties;
 import cn.nihility.local.mq.dto.LocalMessageHolder;
 import cn.nihility.local.mq.service.IProxyMessageSendService;
+import cn.nihility.local.mq.service.impl.DisruptorMessageSendServiceImpl;
+import cn.nihility.local.mq.util.MessageUtils;
 import cn.nihility.local.schedule.util.ProxyInvokeUtils;
 import org.apache.ibatis.reflection.MetaObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
+import org.springframework.context.ApplicationContext;
+import org.springframework.util.ReflectionUtils;
 
+import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +34,8 @@ public class ProxyMessageSendMethodInterceptor implements MethodInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(ProxyMessageSendMethodInterceptor.class);
 
+    private final AtomicBoolean refresh = new AtomicBoolean(true);
+
     /**
      * 代理发送的配置
      */
@@ -36,9 +45,13 @@ public class ProxyMessageSendMethodInterceptor implements MethodInterceptor {
      */
     private List<MessageReceiveProperties> receiverConfigList;
     /**
+     * 原始的 bean 实例
+     */
+    private Object originBeanInstance;
+    /**
      * 代理消息发送的对象实体
      */
-    private Object beanInstance;
+    private Object proxyBeanInstance;
     /**
      * 代理的方法集合
      */
@@ -48,14 +61,61 @@ public class ProxyMessageSendMethodInterceptor implements MethodInterceptor {
      */
     private IProxyMessageSendService messageSendService;
 
-    public ProxyMessageSendMethodInterceptor(List<MessageSendProperties> senderConfigList,
-                                             List<MessageReceiveProperties> receiverConfigList,
-                                             Object beanInstance, IProxyMessageSendService messageSendService) {
-        this.senderConfigList = senderConfigList;
-        this.receiverConfigList = receiverConfigList;
-        this.beanInstance = beanInstance;
-        this.messageSendService = messageSendService;
-        this.methodNameSet = collectMethodNameSet(senderConfigList);
+    /**
+     * Springs 上下文
+     */
+    private ApplicationContext applicationContext;
+    /**
+     * 代理的 class
+     */
+    private Class<?> proxyClass;
+    /**
+     * 代理对象在 spring 容器中的名称
+     */
+    private String beanName;
+    /**
+     * 消息发送的业务类
+     */
+    private List<IProxyMessageSendService> messageSendServiceList;
+
+    public ProxyMessageSendMethodInterceptor(ApplicationContext applicationContext, Class<?> targetClass, String beanName,
+                                             List<IProxyMessageSendService> messageSendServiceList,
+                                             Object originBeanInstance) {
+        this.applicationContext = applicationContext;
+        this.proxyClass = targetClass;
+        this.beanName = beanName;
+        this.messageSendServiceList = messageSendServiceList;
+        this.originBeanInstance = originBeanInstance;
+    }
+
+    /**
+     * 容器更新，刷新内部变量属性
+     */
+    private synchronized void innerRefreshContext() {
+        if (refresh.get()) {
+
+            this.proxyBeanInstance = ProxyInvokeUtils.getIocBeanInstance(applicationContext, proxyClass, beanName);
+            MessageConfigurationProperties configurationProperties =
+                    (MessageConfigurationProperties) ProxyInvokeUtils.getIocBeanInstance(applicationContext,
+                            MessageConfigurationProperties.class, Introspector.decapitalize(MessageConfigurationProperties.class.getSimpleName()));
+            this.senderConfigList = MessageUtils.filterSenderProxyConfig(configurationProperties, proxyClass, beanName);
+            this.receiverConfigList = configurationProperties.getReceivers();
+            this.messageSendService = messageSendServiceList.stream()
+                    .filter(m -> m.support(configurationProperties.getType()))
+                    .findFirst().orElse(new DisruptorMessageSendServiceImpl());
+            this.methodNameSet = collectMethodNameSet(senderConfigList);
+
+            log.info("本地消息队列类型 [{}]", configurationProperties.getType());
+
+            refresh.compareAndSet(true, false);
+        }
+    }
+
+    /**
+     * 设置属性实例上下文标记
+     */
+    public void refreshContext() {
+        refresh.compareAndSet(false, true);
     }
 
     /**
@@ -84,19 +144,21 @@ public class ProxyMessageSendMethodInterceptor implements MethodInterceptor {
 
     @Override
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-
-        if (Object.class.equals(method.getDeclaringClass())) {
-            return methodProxy.invoke(beanInstance, args);
+        if (ReflectionUtils.isObjectMethod(method)) {
+            return method.invoke(proxyBeanInstance, args);
         }
+
+        // 首先判断是否需要刷新
+        innerRefreshContext();
 
         MessageSendProperties senderConfig = matchProxySendConfig(method);
         if (null == senderConfig) {
-            return methodProxy.invoke(beanInstance, args);
+            return method.invoke(originBeanInstance, args);
         }
         MessageReceiveProperties receiverConfig = matchReceiveConfig(senderConfig.getRoutingKey());
         if (null == receiverConfig) {
             log.warn("本地消息发送路由 [{}] 没有定义接收配置，无法代理发送", senderConfig.getRoutingKey());
-            return methodProxy.invoke(beanInstance, args);
+            return method.invoke(originBeanInstance, args);
         }
 
         // 代理消息发送

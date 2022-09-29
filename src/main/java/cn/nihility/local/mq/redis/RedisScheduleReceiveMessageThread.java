@@ -40,9 +40,9 @@ public class RedisScheduleReceiveMessageThread implements Runnable {
     public void run() {
         int sleepDuration = DEFAULT_SLEEP_MILLI;
         while (!Thread.interrupted()) {
-            // 获取 list 头的数据
+            // 获取 list 尾的数据
             LocalMessageHolder message =
-                    (LocalMessageHolder) redisTemplate.opsForList().leftPop(routingKey, Duration.ofMillis(100));
+                    (LocalMessageHolder) redisTemplate.opsForList().rightPop(routingKey, Duration.ofMillis(100));
             if (null != message) {
                 try {
                     DisruptorHandlerProxyInvoke.invokeProxyMethod(receiverConfig, message);

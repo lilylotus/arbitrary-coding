@@ -2,7 +2,7 @@ package cn.nihility.local.mq.config;
 
 import cn.nihility.local.mq.aop.ProxyMessageSendMethodInterceptor;
 import cn.nihility.local.mq.service.IProxyMessageSendService;
-import cn.nihility.local.mq.service.impl.DisruptorMessageSendServiceImpl;
+import cn.nihility.local.mq.util.MessageUtils;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -10,15 +10,14 @@ import org.springframework.cglib.core.ClassLoaderAwareGeneratorStrategy;
 import org.springframework.cglib.core.SpringNamingPolicy;
 import org.springframework.cglib.proxy.Callback;
 import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * mq 剥离代理消息发送的后置代理处理器
@@ -26,16 +25,27 @@ import java.util.stream.Collectors;
  * @author yuanzx
  * @date 2022/09/27 11:54
  */
-public class LocalMessagePostProcessor implements BeanPostProcessor, Ordered {
+public class LocalMessagePostProcessor implements BeanPostProcessor, Ordered, ApplicationContextAware {
 
+    private static final String SKIP_PROXY_PREFIX = "org.springframework";
+    private static final String SKIP_PROXY_PREFIX2 = "javax.servlet";
+
+    /**
+     * 指定代理类的代理状态，同一个 class 类型仅代理增强一次
+     */
     private final Map<Object, Boolean> proxyBeans = new ConcurrentHashMap<>(32);
+    /**
+     * 记录代理的映射
+     */
+    private final Map<String, ProxyMessageSendMethodInterceptor> proxyInterceptor = new ConcurrentHashMap<>(32);
 
     private MessageConfigurationProperties properties;
 
     private List<IProxyMessageSendService> messageSendServiceList;
 
-    public LocalMessagePostProcessor(MessageConfigurationProperties properties,
-                                     List<IProxyMessageSendService> messageSendServiceList) {
+    private ApplicationContext applicationContext;
+
+    public LocalMessagePostProcessor(MessageConfigurationProperties properties, List<IProxyMessageSendService> messageSendServiceList) {
         this.properties = properties;
         this.messageSendServiceList = messageSendServiceList;
     }
@@ -55,6 +65,15 @@ public class LocalMessagePostProcessor implements BeanPostProcessor, Ordered {
      */
     private Object wrapIfNecessary(Object bean, String beanName) {
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
+        String targetClassName = targetClass.getName();
+
+        if (targetClassName.startsWith(SKIP_PROXY_PREFIX) || targetClassName.startsWith(SKIP_PROXY_PREFIX2)) {
+            return bean;
+        }
+        if (targetClassName.contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) {
+            return bean;
+        }
+
         if (!Boolean.TRUE.equals(proxyBeans.get(targetClass))) {
             return createProxy(targetClass, beanName, bean);
         }
@@ -71,17 +90,16 @@ public class LocalMessagePostProcessor implements BeanPostProcessor, Ordered {
      */
     private Object createProxy(Class<?> targetClass, String beanName, Object beanInstance) {
 
-        List<MessageSendProperties> senderConfigList = filterSenderProxyConfig(targetClass, beanName);
+        List<MessageSendProperties> senderConfigList = MessageUtils.filterSenderProxyConfig(properties, targetClass, beanName);
         // 定义的发送代理配置不存在，直接返回原始对象
         if (senderConfigList.isEmpty()) {
             return beanInstance;
         }
 
-        IProxyMessageSendService messageSendService = messageSendServiceList.stream()
-                .filter(m -> m.support(properties.getType())).findFirst().orElse(new DisruptorMessageSendServiceImpl());
         // 代理消息发送的拦截器
         ProxyMessageSendMethodInterceptor proxySendInterceptor =
-                new ProxyMessageSendMethodInterceptor(senderConfigList, properties.getReceivers(), beanInstance, messageSendService);
+                new ProxyMessageSendMethodInterceptor(applicationContext, targetClass, beanName,
+                        messageSendServiceList, beanInstance);
 
         Class<?>[] interfaces = targetClass.getInterfaces();
         Class<?>[] types = new Class<?>[]{ProxyMessageSendMethodInterceptor.class};
@@ -103,27 +121,19 @@ public class LocalMessagePostProcessor implements BeanPostProcessor, Ordered {
         Object proxy = enhancer.create();
 
         proxyBeans.put(targetClass, Boolean.TRUE);
+        proxyInterceptor.put(targetClass.getName() + "#" + beanName, proxySendInterceptor);
 
         return proxy;
 
     }
 
-    /**
-     * 过滤出该类所有的配置项
-     */
-    private List<MessageSendProperties> filterSenderProxyConfig(Class<?> targetClass, String beanName) {
-        List<MessageSendProperties> sendConfigList = properties.getSenders();
-        if (null == sendConfigList) {
-            return Collections.emptyList();
-        }
-        return sendConfigList.stream().filter(p -> support(p, targetClass, beanName)).collect(Collectors.toList());
-    }
+    /*@Override
+    public void onApplicationEvent(RefreshEvent event) {
+        proxyInterceptor.values().forEach(ProxyMessageSendMethodInterceptor::refreshContext);
+    }*/
 
-    private boolean support(MessageSendProperties properties, Class<?> targetClass, String beanName) {
-        if (targetClass.equals(properties.getSendClass())) {
-            return true;
-        }
-        return StringUtils.hasLength(beanName) && beanName.equals(properties.getSendBeanName());
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
-
 }

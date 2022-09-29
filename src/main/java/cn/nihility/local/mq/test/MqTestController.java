@@ -1,5 +1,7 @@
 package cn.nihility.local.mq.test;
 
+import cn.nihility.local.mq.config.MessageConfigurationProperties;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,8 +18,20 @@ public class MqTestController {
 
     private MqTestSenderService senderService;
 
-    public MqTestController(MqTestSenderService senderService) {
+    private MessageConfigurationProperties properties;
+
+    public MqTestController(MqTestSenderService senderService, MessageConfigurationProperties properties) {
         this.senderService = senderService;
+        this.properties = properties;
+    }
+
+    @GetMapping("/mq/properties")
+    public Map<String, Object> properties() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", 200);
+        result.put("message", "ok send");
+        result.put("data", properties);
+        return result;
     }
 
     @PostMapping("/mq/send")

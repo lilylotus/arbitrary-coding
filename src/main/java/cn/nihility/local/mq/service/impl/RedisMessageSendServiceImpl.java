@@ -35,8 +35,8 @@ public class RedisMessageSendServiceImpl implements IProxyMessageSendService {
 
         String key = senderConfig.getRoutingKey();
 
-        // 把消息实体添加到 list 尾
-        redisTemplate.opsForList().rightPush(key, message);
+        // 把消息实体添加到 list 头
+        redisTemplate.opsForList().leftPush(key, message);
 
         if (!routingKeyMap.containsKey(key)) {
             threadPool.startExecuteReceiveMessage(key, receiveConfig, redisTemplate);
