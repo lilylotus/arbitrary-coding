@@ -72,10 +72,7 @@ public final class ClassLoaderFactory {
      * @return the new class loader
      * @throws Exception if an error occurs constructing the class loader
      */
-    public static ClassLoader createClassLoader(File unpacked[],
-                                                File packed[],
-                                                final ClassLoader parent)
-            throws Exception {
+    public static ClassLoader createClassLoader(File unpacked[], File packed[], final ClassLoader parent) throws Exception {
 
         if (log.isDebugEnabled()) {
             log.debug("  Creating new class loader");
@@ -127,32 +124,35 @@ public final class ClassLoaderFactory {
         // Construct the class loader itself
         final URL[] array = set.toArray(new URL[0]);
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> {
-                    if (parent == null) {
-                        return new URLClassLoader(array);
-                    } else {
-                        return new URLClassLoader(array, parent);
-                    }
-                });
+            (PrivilegedAction<URLClassLoader>) () -> {
+                if (parent == null) {
+                    return new URLClassLoader(array);
+                } else {
+                    return new URLClassLoader(array, parent);
+                }
+            });
     }
 
     public static ClassLoader createClassLoader(final URL[] urls, ClassLoader parent) {
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> {
-                    if (parent == null) {
-                        return new URLClassLoader(urls);
-                    } else {
-                        return new URLClassLoader(urls, parent);
-                    }
-                });
+            (PrivilegedAction<URLClassLoader>) () -> {
+                if (parent == null) {
+                    return new URLClassLoader(urls);
+                } else {
+                    return new URLClassLoader(urls, parent);
+                }
+            });
     }
 
     // Protected for unit testing
-    protected static String[] getPaths(String value) {
+    private static String[] getPaths(String value) {
+        boolean containQuotation = value.contains("\"");
+        if (!containQuotation) {
+            return value.split(",");
+        }
 
         List<String> result = new ArrayList<>();
         Matcher matcher = PATH_PATTERN.matcher(value);
-
         while (matcher.find()) {
             String path = value.substring(matcher.start(), matcher.end());
 
@@ -175,11 +175,10 @@ public final class ClassLoaderFactory {
                 // Too early to use standard i18n support. The class path hasn't
                 // been configured.
                 throw new IllegalArgumentException(
-                        "The double quote [\"] character can only be used to quote paths. It must " +
-                                "not appear in a path. This loader path is not valid: [" + value + "]");
-            } else {
-                // Not quoted - NO-OP
-            }
+                    "The double quote [\"] character can only be used to quote paths. It must " +
+                        "not appear in a path. This loader path is not valid: [" + value + "]");
+            }  // Not quoted - NO-OP
+
 
             result.add(path);
         }
@@ -192,9 +191,15 @@ public final class ClassLoaderFactory {
      * @param parent parent class loader
      */
     public static ClassLoader createClassLoader(String paths, ClassLoader parent) throws Exception {
-        if ((paths == null) || (paths.equals(""))) {
+        if ((paths == null) || ("".equals(paths))) {
             return parent;
         }
+        List<Repository> repositories = getPathRepositories(paths);
+
+        return ClassLoaderFactory.createClassLoader(repositories, parent);
+    }
+
+    public static List<Repository> getPathRepositories(String paths) {
         List<Repository> repositories = new ArrayList<>();
         String[] repositoryPaths = getPaths(paths);
 
@@ -202,7 +207,7 @@ public final class ClassLoaderFactory {
             // Local repository
             if (repository.endsWith("*.jar")) {
                 repository = repository.substring
-                        (0, repository.length() - "*.jar".length());
+                    (0, repository.length() - "*.jar".length());
                 repositories.add(new Repository(repository, RepositoryType.GLOB));
             } else if (repository.endsWith(".jar")) {
                 repositories.add(new Repository(repository, RepositoryType.JAR));
@@ -210,8 +215,7 @@ public final class ClassLoaderFactory {
                 repositories.add(new Repository(repository, RepositoryType.DIR));
             }
         }
-
-        return ClassLoaderFactory.createClassLoader(repositories, parent);
+        return repositories;
     }
 
 
@@ -233,6 +237,19 @@ public final class ClassLoaderFactory {
             log.debug("Creating new class loader");
         }
 
+        final URL[] array = getRepositoriesUrls(repositories);
+
+        return AccessController.doPrivileged(
+            (PrivilegedAction<URLClassLoader>) () -> {
+                if (parent == null) {
+                    return new URLClassLoader(array);
+                } else {
+                    return new URLClassLoader(array, parent);
+                }
+            });
+    }
+
+    public static URL[] getRepositoriesUrls(List<Repository> repositories) throws IOException {
         // Construct the "class path" for this class loader
         Set<URL> set = new LinkedHashSet<>();
 
@@ -274,7 +291,7 @@ public final class ClassLoaderFactory {
                     }
                     if (log.isDebugEnabled()) {
                         log.debug("  Including directory glob "
-                                + directory.getAbsolutePath());
+                            + directory.getAbsolutePath());
                     }
                     String filenames[] = directory.list();
                     if (filenames == null) {
@@ -292,7 +309,7 @@ public final class ClassLoaderFactory {
                         }
                         if (log.isDebugEnabled()) {
                             log.debug("    Including glob jar file "
-                                    + file.getAbsolutePath());
+                                + file.getAbsolutePath());
                         }
                         URL url = buildClassLoaderUrl(file);
                         set.add(url);
@@ -308,15 +325,7 @@ public final class ClassLoaderFactory {
                 log.debug("  location " + i + " is " + array[i]);
             }
         }
-
-        return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> {
-                    if (parent == null) {
-                        return new URLClassLoader(array);
-                    } else {
-                        return new URLClassLoader(array, parent);
-                    }
-                });
+        return array;
     }
 
     private static boolean validateFile(File file,
@@ -324,17 +333,17 @@ public final class ClassLoaderFactory {
         if (RepositoryType.DIR == type || RepositoryType.GLOB == type) {
             if (!file.isDirectory() || !file.canRead()) {
                 String msg = "Problem with directory [" + file +
-                        "], exists: [" + file.exists() +
-                        "], isDirectory: [" + file.isDirectory() +
-                        "], canRead: [" + file.canRead() + "]";
+                    "], exists: [" + file.exists() +
+                    "], isDirectory: [" + file.isDirectory() +
+                    "], canRead: [" + file.canRead() + "]";
                 log.warn(msg);
                 return false;
             }
         } else if (RepositoryType.JAR == type) {
             if (!file.canRead()) {
                 log.warn("Problem with JAR file [" + file +
-                        "], exists: [" + file.exists() +
-                        "], canRead: [" + file.canRead() + "]");
+                    "], exists: [" + file.exists() +
+                    "], canRead: [" + file.canRead() + "]");
                 return false;
             }
         }
@@ -354,6 +363,14 @@ public final class ClassLoaderFactory {
         // the sequence "!/" is not present in a class loader URL.
         String result = urlString.replaceAll("!/", "%21/");
         return new URL(result);
+    }
+
+    public static URL convert2JarUrl(URL fileUrl) throws MalformedURLException {
+        String filePath = fileUrl.toString();
+        if (!filePath.endsWith("!/") && !filePath.endsWith("%21/")) {
+            filePath = filePath + "!/";
+        }
+        return new URL("jar", null, -1, filePath);
     }
 
 
@@ -389,4 +406,5 @@ public final class ClassLoaderFactory {
             return type;
         }
     }
+
 }
