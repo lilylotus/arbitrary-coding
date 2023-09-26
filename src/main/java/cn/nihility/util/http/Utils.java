@@ -5,9 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -118,6 +116,18 @@ public class Utils {
         } catch (CharacterCodingException ex) {
             return defaultValue;
         }
+    }
+
+    public static Map<String, List<String>> caseInsensitiveCopyOf(Map<String, Collection<String>> headers) {
+        Map<String, List<String>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (Map.Entry<String, Collection<String>> entry : headers.entrySet()) {
+            String headerName = entry.getKey();
+            if (!result.containsKey(headerName)) {
+                result.put(headerName.toLowerCase(Locale.ROOT), new LinkedList<>());
+            }
+            result.get(headerName).addAll(entry.getValue());
+        }
+        return result;
     }
 
 }

@@ -124,6 +124,31 @@ public class JacksonUtils {
     /**
      * Json string deserialize to Object.
      *
+     * @param inputStream json string input stream
+     * @param type        {@link Type} of object
+     * @param <T>         General type
+     * @return object
+     * @throws JacksonSerializationException if deserialize failed
+     */
+    public static <T> T toObj(InputStream inputStream, Type type) {
+        try {
+            return mapper.readValue(inputStream, mapper.constructType(type));
+        } catch (IOException e) {
+            throw new JacksonSerializationException(e);
+        }
+    }
+
+    public static <T> T toObj(InputStream inputStream, TypeReference<T> typeReference) {
+        try {
+            return mapper.readValue(inputStream, typeReference);
+        } catch (IOException e) {
+            throw new JacksonSerializationException(e);
+        }
+    }
+
+    /**
+     * Json string deserialize to Object.
+     *
      * @param json          json string byte array
      * @param typeReference {@link TypeReference} of object
      * @param <T>           General type
@@ -220,6 +245,16 @@ public class JacksonUtils {
         } catch (IllegalArgumentException ex) {
             throw new JacksonSerializationException(ex);
         }
+    }
+
+    /**
+     * construct java type -> Jackson Java Type.
+     *
+     * @param type java type
+     * @return JavaType {@link JavaType}
+     */
+    public static JavaType constructJavaType(Type type) {
+        return mapper.constructType(type);
     }
 
     public static class JacksonSerializationException extends RuntimeException {

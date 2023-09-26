@@ -1,5 +1,11 @@
 package cn.nihility.util.http;
 
+import cn.nihility.util.http.handler.HttpRestResult;
+import cn.nihility.util.http.handler.ResponseHandler;
+import cn.nihility.util.http.handler.ResponseHandlerUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
@@ -23,14 +29,15 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class HttpClientUtils {
 
@@ -172,6 +179,26 @@ public class HttpClientUtils {
         return connectionManager;
     }
 
+    public static InputStream entityContent(CloseableHttpResponse response) throws IOException {
+        HttpEntity entity = response.getEntity();
+        if (entity == null) {
+            return null;
+        }
+        if (entity.isStreaming()) {
+            return entity.getContent();
+        }
+        return null;
+    }
+
+    public static Map<String, String> convertHeader(Header[] headers) {
+        Map<String, String> h = new LinkedHashMap<>();
+        if (null != headers) {
+            for (Header header : headers) {
+                h.put(header.getName(), header.getValue());
+            }
+        }
+        return h;
+    }
 
     /**
      * Creates a new Options Instance.
@@ -192,16 +219,12 @@ public class HttpClientUtils {
             .build();
     }
 
-    public static void execute(HttpUriRequest request) {
+    public static <R> R execute(HttpUriRequest request, Function<CloseableHttpResponse, R> func) {
         CloseableHttpClient client = defaultHttpClient();
         try (CloseableHttpResponse response = client.execute(request)) {
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
-            String reasonPhrase = statusLine.getReasonPhrase();
-            log.info("response status [{}:{}]", statusCode, reasonPhrase);
-
-            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            log.info("response body [{}]", body);
+            R result = func.apply(response);
+            EntityUtils.consume(response.getEntity());
+            return result;
         } catch (ClientProtocolException e) {
             String error = String.format("请求 [%s: %s] 协议异常", request.getMethod(), request.getURI());
             log.error(error, e);
@@ -212,6 +235,68 @@ public class HttpClientUtils {
             throw new HttpClientException(error);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public static <R> HttpRestResult<R> execute(HttpUriRequest request, Class<R> responseType) {
+        Function<CloseableHttpResponse, HttpRestResult<R>> func = (resp) -> {
+            ResponseHandler<R> handler = ResponseHandlerUtils.selectResponseHandler(responseType);
+            try {
+                return handler.handle(resp);
+            } catch (Exception e) {
+                log.error("解析请求 [{}] 响应异常", request.getURI(), e);
+            }
+            return null;
+        };
+        return execute(request, func);
+    }
+
+    public static <R> HttpRestResult<R> execute(HttpUriRequest request, TypeReference<R> responseType) {
+        Function<CloseableHttpResponse, HttpRestResult<R>> func = (resp) -> {
+            HttpRestResult<R> result = new HttpRestResult<>();
+            int status = resp.getStatusLine().getStatusCode();
+            result.setCode(status);
+            result.setHeader(convertHeader(resp.getAllHeaders()));
+            R resultData = null;
+            try {
+                InputStream inputStream = entityContent(resp);
+                if (null != inputStream) {
+                    resultData = JacksonUtils.toObj(inputStream, responseType);
+                }
+            } catch (Exception e) {
+                log.error("解析请求 [{}] 响应异常", request.getURI(), e);
+            }
+            result.setData(resultData);
+            return result;
+        };
+        return execute(request, func);
+    }
+
+    public static Response<String> execute(HttpUriRequest request) {
+        Function<CloseableHttpResponse, Response<String>> func = (rsp) -> {
+            StatusLine statusLine = rsp.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            String reasonPhrase = statusLine.getReasonPhrase();
+
+            Map<String, Collection<String>> headers = new LinkedHashMap<>(8);
+            Header[] allHeaders = rsp.getAllHeaders();
+            for (Header h : allHeaders) {
+                Collection<String> hList = headers.computeIfAbsent(h.getName(), (k) -> new ArrayList<>(4));
+                hList.add(h.getValue());
+            }
+
+            HttpEntity entity = rsp.getEntity();
+            try {
+                String body = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+                return new Response<>(statusCode, reasonPhrase, headers, body);
+            } catch (IOException e) {
+                log.error("获取请求 [{}] 响应内容异常", request.getURI(), e);
+            }
+
+            return new Response<>(statusCode, reasonPhrase, headers, null);
+        };
+        return execute(request, func);
+    }
+
 
     static class DisabledValidationTrustManager implements X509TrustManager {
 

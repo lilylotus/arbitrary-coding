@@ -3,139 +3,48 @@ package cn.nihility.util.http;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class Response implements Closeable {
+public class Response<T> {
 
     private final int status;
     private final String reason;
     private final Map<String, Collection<String>> headers;
-    private final Body body;
+    private final T body;
 
-    private Response(Builder builder) {
-        this.status = builder.status;
-        this.reason = builder.reason; // nullable
-        this.headers = (builder.headers != null)
-            ? Collections.unmodifiableMap(caseInsensitiveCopyOf(builder.headers))
+    public Response(int status, String reason, Map<String, Collection<String>> headers, T body) {
+        this.status = status;
+        this.reason = reason;
+        this.headers = (headers != null)
+            ? Collections.unmodifiableMap(Utils.caseInsensitiveCopyOf(headers))
             : new LinkedHashMap<>();
-        this.body = builder.body; // nullable
-
+        this.body = body;
     }
 
-    public Builder toBuilder() {
-        return new Builder(this);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-        int status;
-        String reason;
-        Map<String, Collection<String>> headers;
-        Body body;
-
-        Builder() {
-        }
-
-        Builder(Response source) {
-            this.status = source.status;
-            this.reason = source.reason;
-            this.headers = source.headers;
-            this.body = source.body;
-        }
-
-        /**
-         * @see Response#status
-         */
-        public Builder status(int status) {
-            this.status = status;
-            return this;
-        }
-
-        /**
-         * @see Response#reason
-         */
-        public Builder reason(String reason) {
-            this.reason = reason;
-            return this;
-        }
-
-        /**
-         * @see Response#headers
-         */
-        public Builder headers(Map<String, Collection<String>> headers) {
-            this.headers = headers;
-            return this;
-        }
-
-        /**
-         * @see Response#body
-         */
-        public Builder body(Body body) {
-            this.body = body;
-            return this;
-        }
-
-        /**
-         * @see Response#body
-         */
-        public Builder body(InputStream inputStream, Integer length) {
-            this.body = InputStreamBody.orNull(inputStream, length);
-            return this;
-        }
-
-        /**
-         * @see Response#body
-         */
-        public Builder body(byte[] data) {
-            this.body = ByteArrayBody.orNull(data);
-            return this;
-        }
-
-        /**
-         * @see Response#body
-         */
-        public Builder body(String text, Charset charset) {
-            this.body = ByteArrayBody.orNull(text, charset);
-            return this;
-        }
-
-        public Response build() {
-            return new Response(this);
-        }
-    }
-
-    /**
-     * status code. ex {@code 200}
-     * <p>
-     * See <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html" >rfc2616</a>
-     */
-    public int status() {
+    public int getStatus() {
         return status;
     }
 
-    /**
-     * Nullable and not set when using http/2
-     * <p>
-     * See https://github.com/http2/http2-spec/issues/202
-     */
-    public String reason() {
+    public String getReason() {
         return reason;
     }
 
-    /**
-     * Returns a case-insensitive mapping of header names to their values.
-     */
-    public Map<String, Collection<String>> headers() {
+    public Map<String, Collection<String>> getHeaders() {
         return headers;
     }
 
-    /**
-     * if present, the response had a body
-     */
-    public Body body() {
+    public String getFirstHeader(String key) {
+        Collection<String> v = headers.get(key);
+        if (null == v || v.isEmpty()) {
+            return null;
+        }
+        return v.iterator().next();
+    }
+
+    public T getBody() {
         return body;
     }
 
@@ -155,10 +64,6 @@ public class Response implements Closeable {
         return builder.toString();
     }
 
-    @Override
-    public void close() {
-        Utils.ensureClosed(body);
-    }
 
     public interface Body extends Closeable {
 
@@ -308,17 +213,5 @@ public class Response implements Closeable {
         }
     }
 
-    private static Map<String, Collection<String>> caseInsensitiveCopyOf(Map<String, Collection<String>> headers) {
-        Map<String, Collection<String>> result = new TreeMap<String, Collection<String>>(String.CASE_INSENSITIVE_ORDER);
-
-        for (Map.Entry<String, Collection<String>> entry : headers.entrySet()) {
-            String headerName = entry.getKey();
-            if (!result.containsKey(headerName)) {
-                result.put(headerName.toLowerCase(Locale.ROOT), new LinkedList<String>());
-            }
-            result.get(headerName).addAll(entry.getValue());
-        }
-        return result;
-    }
 
 }
